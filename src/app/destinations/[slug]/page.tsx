@@ -14,6 +14,7 @@ import {
   Globe,
   CheckCircle2,
   Sparkles,
+  type LucideIcon,
 } from "lucide-react";
 import { destinations, getDestinationBySlug, categoryMeta } from "@/data/destinations";
 import DestinationArt from "@/components/ui/DestinationArt";
@@ -325,7 +326,7 @@ function QuickStat({
   label,
   value,
 }: {
-  icon: React.ElementType;
+  icon: LucideIcon;
   label: string;
   value: string;
 }) {

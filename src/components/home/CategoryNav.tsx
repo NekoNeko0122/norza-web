@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Trees, Compass, Landmark, Church, TreePine, Mountain } from "lucide-react";
+import { Trees, Compass, Landmark, Church, TreePine, Mountain, type LucideIcon } from "lucide-react";
 import { categoryMeta, destinations, type DestinationCategory } from "@/data/destinations";
 
-const icons: Record<DestinationCategory, React.ElementType> = {
+const icons: Record<DestinationCategory, LucideIcon> = {
   nature: Trees,
   adventure: Compass,
   heritage: Landmark,

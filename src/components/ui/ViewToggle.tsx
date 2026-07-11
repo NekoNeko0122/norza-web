@@ -2,12 +2,12 @@
 
 import { useId } from "react";
 import { motion } from "framer-motion";
-import { LayoutGrid, MapIcon } from "lucide-react";
+import { LayoutGrid, MapIcon, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ViewMode = "list" | "map";
 
-const options: { value: ViewMode; label: string; icon: React.ElementType }[] = [
+const options: { value: ViewMode; label: string; icon: LucideIcon }[] = [
   { value: "list", label: "List", icon: LayoutGrid },
   { value: "map", label: "Map", icon: MapIcon },
 ];

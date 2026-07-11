@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Mountain, Landmark, Trees, ArrowRight } from "lucide-react";
+import { Mountain, Landmark, Trees, ArrowRight, type LucideIcon } from "lucide-react";
 import { destinations } from "@/data/destinations";
 
 export const metadata: Metadata = {
@@ -84,7 +84,7 @@ function InfoCard({
   title,
   body,
 }: {
-  icon: React.ElementType;
+  icon: LucideIcon;
   title: string;
   body: string;
 }) {
