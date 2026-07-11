@@ -72,7 +72,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/40 sm:flex-row">
-          <p>© {new Date().getFullYear()} Discover Norzagaray. Built with love for the town.</p>
+          <p>© {new Date().getFullYear()} NekoNeko. Jane lang sapat na. Discover Norzagaray. </p>
           <p>Spot info evolving — help us keep it accurate.</p>
         </div>
       </div>
