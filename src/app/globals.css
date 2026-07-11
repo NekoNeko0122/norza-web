@@ -1,26 +1,351 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fff5f8;
+  --foreground: #2b0f1e;
+
+  /* Brand pink scale — modern rose/fuchsia, same family in both themes */
+  --color-brand-50: #fff0f6;
+  --color-brand-100: #ffe0ed;
+  --color-brand-200: #ffbfdd;
+  --color-brand-300: #ff92c4;
+  --color-brand-400: #fb5fa8;
+  --color-brand-500: #f0388c;
+  --color-brand-600: #d81f74;
+  --color-brand-700: #b0135e;
+  --color-brand-800: #8a1050;
+  --color-brand-900: #630c3c;
+  --color-brand-950: #3d0526;
+
+  /* Deep plum — used for elements that stay dark regardless of theme (footer) */
+  --color-plum-950: #1a0a14;
+  --color-plum-900: #250e1c;
+  --color-plum-800: #341327;
+
+  /* Accent gold, used sparingly */
+  --color-gold-400: #f5c26b;
+  --color-gold-500: #eba83f;
+
+  /* Semantic surface tokens — these flip under .dark below */
+  --color-surface: #ffffff;
+  --color-surface-2: #fff8fb;
+  --color-edge: #ffe0ed;
+  --color-ink: #2b0f1e;
+  --color-ink-soft: rgba(43, 15, 30, 0.66);
+  --color-ink-faint: rgba(43, 15, 30, 0.42);
+  --color-tint: #fff0f6;
+  --color-tint-strong: #ffe0ed;
+}
+
+.dark {
+  --background: #170a11;
+  --foreground: #fdf1f6;
+
+  --color-surface: #241019;
+  --color-surface-2: #2b1420;
+  --color-edge: rgba(255, 255, 255, 0.09);
+  --color-ink: #fdf1f6;
+  --color-ink-soft: rgba(253, 241, 246, 0.64);
+  --color-ink-faint: rgba(253, 241, 246, 0.4);
+  --color-tint: rgba(240, 56, 140, 0.14);
+  --color-tint-strong: rgba(240, 56, 140, 0.24);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-brand-50: var(--color-brand-50);
+  --color-brand-100: var(--color-brand-100);
+  --color-brand-200: var(--color-brand-200);
+  --color-brand-300: var(--color-brand-300);
+  --color-brand-400: var(--color-brand-400);
+  --color-brand-500: var(--color-brand-500);
+  --color-brand-600: var(--color-brand-600);
+  --color-brand-700: var(--color-brand-700);
+  --color-brand-800: var(--color-brand-800);
+  --color-brand-900: var(--color-brand-900);
+  --color-brand-950: var(--color-brand-950);
+
+  --color-plum-950: var(--color-plum-950);
+  --color-plum-900: var(--color-plum-900);
+  --color-plum-800: var(--color-plum-800);
+
+  --color-gold-400: var(--color-gold-400);
+  --color-gold-500: var(--color-gold-500);
+
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-edge: var(--color-edge);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-ink-faint: var(--color-ink-faint);
+  --color-tint: var(--color-tint);
+  --color-tint-strong: var(--color-tint-strong);
+
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-fraunces);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 10s ease-in-out infinite;
+  --animate-blob: blob 14s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2.4s ease-in-out infinite;
+  --animate-spin-slow: spin-slow 5s linear infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes andrew-float {
+  0%,
+  100% {
+    transform: translateY(0px);
   }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+@keyframes andrew-ear-twitch-l {
+  0%,
+  78%,
+  100% {
+    transform: rotate(0deg);
+  }
+  83% {
+    transform: rotate(-12deg);
+  }
+  91% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes andrew-ear-twitch-r {
+  0%,
+  78%,
+  100% {
+    transform: rotate(0deg);
+  }
+  83% {
+    transform: rotate(12deg);
+  }
+  91% {
+    transform: rotate(-6deg);
+  }
+}
+@keyframes andrew-shades-shine {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.andrew-float-wrap {
+  animation: andrew-float 4s ease-in-out infinite;
+}
+.andrew-ear-l {
+  transform-origin: 67px 112px;
+  animation: andrew-ear-twitch-l 7s ease-in-out infinite;
+}
+.andrew-ear-r {
+  transform-origin: 153px 112px;
+  animation: andrew-ear-twitch-r 7s ease-in-out infinite 2.5s;
+}
+.andrew-lens-shine {
+  animation: andrew-shades-shine 3.5s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -40px) scale(1.08);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(240, 56, 140, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(240, 56, 140, 0);
+  }
+}
+
+* {
+  border-color: var(--color-edge);
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--color-brand-300);
+  color: var(--color-plum-950);
+}
+
+/* Custom scrollbar, tuned to the brand palette */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-200);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-400);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--color-brand-800);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-600);
+}
+
+.text-gradient-brand {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-brand-600),
+    var(--color-brand-400) 45%,
+    var(--color-gold-500)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.dark .text-gradient-brand {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-brand-400),
+    var(--color-brand-300) 45%,
+    var(--color-gold-400)
+  );
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.dark .glass-panel {
+  background: rgba(23, 10, 17, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.glass-panel-dark {
+  background: rgba(37, 14, 28, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Subtle film-grain texture used behind hero / artistic sections */
+.bg-grain {
+  position: relative;
+}
+.bg-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+.dark .bg-grain::before {
+  opacity: 0.5;
+}
+
+/* Leaflet custom pin styling */
+.norza-pin {
+  filter: drop-shadow(0 6px 10px rgba(176, 19, 94, 0.45));
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+.leaflet-popup-tip {
+  background: var(--color-surface);
+}
+.leaflet-popup-content {
+  margin: 0;
+  width: 240px !important;
+}
+.leaflet-container {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background: var(--color-surface-2);
+}
+.dark .leaflet-container {
+  background: #1c0e16;
+}
+.andrew-zoom-slider {
+  height: 90px;
+  width: 6px;
+  cursor: pointer;
+  border-radius: 999px;
+  background: var(--color-tint-strong);
+}
+.andrew-zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 999px;
+  background: var(--color-brand-500);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.andrew-zoom-slider::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  border-radius: 999px;
+  background: var(--color-brand-500);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.leaflet-control-zoom a {
+  background: var(--color-surface) !important;
+  color: var(--color-ink) !important;
+  border-color: var(--color-edge) !important;
 }
