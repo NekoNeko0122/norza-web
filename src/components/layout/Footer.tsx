@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MapPinned, Mail } from "lucide-react";
 
 export default function Footer() {
@@ -71,8 +72,26 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/40 sm:flex-row">
-          <p>© {new Date().getFullYear()} NekoNeko. Jane lang sapat na. Discover Norzagaray. </p>
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/40 sm:flex-row">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2.5">
+              <Image
+                src="/logos/bcp-logo.png"
+                alt="Bestlink College of the Philippines"
+                width={367}
+                height={367}
+                className="h-8 w-8 object-contain opacity-90"
+              />
+              <Image
+                src="/logos/research-logo.png"
+                alt="BCP Center for Research and Development"
+                width={170}
+                height={161}
+                className="h-8 w-auto object-contain opacity-90"
+              />
+            </div>
+            <p>© {new Date().getFullYear()} NekoNeko. Jane lang sapat na. Discover Norzagaray. </p>
+          </div>
           <p>Spot info evolving — help us keep it accurate.</p>
         </div>
       </div>
