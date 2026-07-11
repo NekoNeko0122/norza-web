@@ -57,15 +57,17 @@ export default function MapDragToggle() {
     <div ref={controlRef} className="leaflet-control">
       <button
         onClick={() => setEnabled((e) => !e)}
+        aria-label={enabled ? "Disable map drag" : "Enable map drag"}
+        aria-pressed={enabled}
+        title={enabled ? "Map drag on — tap to disable" : "Enable map drag"}
         className={cn(
-          "flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-2 text-xs font-semibold shadow-lg backdrop-blur transition-colors",
+          "grid h-9 w-9 shrink-0 place-items-center rounded-full border shadow-lg backdrop-blur transition-colors",
           enabled
             ? "border-brand-500 bg-brand-500 text-white"
             : "border-edge bg-surface/95 text-ink-soft"
         )}
       >
-        <Hand size={13} />
-        {enabled ? "Map Drag On" : "Enable Map Drag"}
+        <Hand size={15} />
       </button>
     </div>
   );
