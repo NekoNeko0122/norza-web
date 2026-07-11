@@ -1,0 +1,72 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useMap } from "react-leaflet";
+import L from "leaflet";
+import { Hand } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useIsTouchDevice } from "@/lib/useIsTouchDevice";
+
+/**
+ * On touch devices the map starts with dragging disabled so a single-finger
+ * swipe scrolls the page instead of panning the map. This control lets
+ * someone opt in to drag/pan while they're actively exploring the map, and
+ * automatically opts back out once the map scrolls mostly out of view so
+ * the rest of the page keeps scrolling normally.
+ */
+export default function MapDragToggle() {
+  const map = useMap();
+  const isTouch = useIsTouchDevice();
+  const [enabled, setEnabled] = useState(false);
+  const controlRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isTouch) {
+      map.dragging.enable();
+      return;
+    }
+    if (enabled) {
+      map.dragging.enable();
+    } else {
+      map.dragging.disable();
+    }
+  }, [isTouch, enabled, map]);
+
+  useEffect(() => {
+    if (!isTouch) return;
+    const container = map.getContainer();
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio < 0.4) setEnabled(false);
+      },
+      { threshold: [0, 0.4, 1] }
+    );
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [isTouch, map]);
+
+  useEffect(() => {
+    const el = controlRef.current;
+    if (!el) return;
+    L.DomEvent.disableClickPropagation(el);
+  }, []);
+
+  if (!isTouch) return null;
+
+  return (
+    <div ref={controlRef} className="leaflet-control">
+      <button
+        onClick={() => setEnabled((e) => !e)}
+        className={cn(
+          "flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-2 text-xs font-semibold shadow-lg backdrop-blur transition-colors",
+          enabled
+            ? "border-brand-500 bg-brand-500 text-white"
+            : "border-edge bg-surface/95 text-ink-soft"
+        )}
+      >
+        <Hand size={13} />
+        {enabled ? "Map Drag On" : "Enable Map Drag"}
+      </button>
+    </div>
+  );
+}

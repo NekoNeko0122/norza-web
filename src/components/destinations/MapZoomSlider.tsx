@@ -42,46 +42,44 @@ export default function MapZoomSlider({
   }
 
   return (
-    <div className="leaflet-top leaflet-right !mr-2.5 !mt-2.5">
-      <div
-        ref={controlRef}
-        className="leaflet-control flex flex-col items-center gap-1 rounded-2xl border border-edge bg-surface/95 p-1.5 shadow-lg backdrop-blur"
-        onPointerDownCapture={(e) => e.stopPropagation()}
-        onMouseDownCapture={(e) => e.stopPropagation()}
-        onTouchStartCapture={(e) => e.stopPropagation()}
+    <div
+      ref={controlRef}
+      className="leaflet-control flex flex-col items-center gap-1 rounded-2xl border border-edge bg-surface/95 p-1.5 shadow-lg backdrop-blur"
+      onPointerDownCapture={(e) => e.stopPropagation()}
+      onMouseDownCapture={(e) => e.stopPropagation()}
+      onTouchStartCapture={(e) => e.stopPropagation()}
+    >
+      <button
+        onClick={() => setMapZoom(zoom + 1)}
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-ink-soft transition-colors hover:bg-tint hover:text-brand-600"
+        aria-label="Zoom in"
       >
-        <button
-          onClick={() => setMapZoom(zoom + 1)}
-          className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-ink-soft transition-colors hover:bg-tint hover:text-brand-600"
-          aria-label="Zoom in"
-        >
-          <Plus size={14} />
-        </button>
+        <Plus size={14} />
+      </button>
 
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={0.5}
-          value={zoom}
-          onChange={(e) => setMapZoom(Number(e.target.value))}
-          className="andrew-zoom-slider my-1 accent-brand-500"
-          style={{
-            writingMode: "vertical-lr",
-            direction: "rtl",
-            height: compact ? 48 : 90,
-          }}
-          aria-label="Map zoom level"
-        />
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={0.5}
+        value={zoom}
+        onChange={(e) => setMapZoom(Number(e.target.value))}
+        className="andrew-zoom-slider my-1 accent-brand-500"
+        style={{
+          writingMode: "vertical-lr",
+          direction: "rtl",
+          height: compact ? 48 : 90,
+        }}
+        aria-label="Map zoom level"
+      />
 
-        <button
-          onClick={() => setMapZoom(zoom - 1)}
-          className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-ink-soft transition-colors hover:bg-tint hover:text-brand-600"
-          aria-label="Zoom out"
-        >
-          <Minus size={14} />
-        </button>
-      </div>
+      <button
+        onClick={() => setMapZoom(zoom - 1)}
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-ink-soft transition-colors hover:bg-tint hover:text-brand-600"
+        aria-label="Zoom out"
+      >
+        <Minus size={14} />
+      </button>
     </div>
   );
 }

@@ -105,6 +105,12 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/destinations"
+              className="mt-2 rounded-xl bg-ink px-4 py-3 text-center text-sm font-semibold text-background"
+            >
+              Plan Your Trip
+            </Link>
           </div>
         </div>
       )}

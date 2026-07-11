@@ -4,8 +4,7 @@ import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import MapMask from "@/components/destinations/MapMask";
-import MapZoomSlider from "@/components/destinations/MapZoomSlider";
-import DisableDragOnTouch from "@/components/destinations/DisableDragOnTouch";
+import MapControls from "@/components/destinations/MapControls";
 import {
   NORZAGARAY_BOUNDS,
   NORZAGARAY_MIN_ZOOM,
@@ -49,8 +48,7 @@ export default function MiniMap({
       zoomControl={false}
       className="h-full w-full"
     >
-      <MapZoomSlider min={NORZAGARAY_MIN_ZOOM} max={NORZAGARAY_MAX_ZOOM} compact />
-      <DisableDragOnTouch />
+      <MapControls min={NORZAGARAY_MIN_ZOOM} max={NORZAGARAY_MAX_ZOOM} compact />
       <TileLayer
         key={theme}
         attribution={TILE_ATTRIBUTION}

@@ -8,8 +8,7 @@ import type { Destination } from "@/data/destinations";
 import { categoryMeta } from "@/data/destinations";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import MapMask from "./MapMask";
-import MapZoomSlider from "./MapZoomSlider";
-import DisableDragOnTouch from "./DisableDragOnTouch";
+import MapControls from "./MapControls";
 import {
   NORZAGARAY_BOUNDS,
   NORZAGARAY_MIN_ZOOM,
@@ -67,8 +66,7 @@ export default function DestinationMap({
       zoomControl={false}
       className="h-full w-full"
     >
-      <MapZoomSlider min={NORZAGARAY_MIN_ZOOM} max={NORZAGARAY_MAX_ZOOM} />
-      <DisableDragOnTouch />
+      <MapControls min={NORZAGARAY_MIN_ZOOM} max={NORZAGARAY_MAX_ZOOM} />
       <TileLayer
         key={theme}
         attribution={TILE_ATTRIBUTION}
