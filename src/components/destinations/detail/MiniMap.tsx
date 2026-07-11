@@ -5,6 +5,7 @@ import L from "leaflet";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import MapMask from "@/components/destinations/MapMask";
 import MapZoomSlider from "@/components/destinations/MapZoomSlider";
+import DisableDragOnTouch from "@/components/destinations/DisableDragOnTouch";
 import {
   NORZAGARAY_BOUNDS,
   NORZAGARAY_MIN_ZOOM,
@@ -49,6 +50,7 @@ export default function MiniMap({
       className="h-full w-full"
     >
       <MapZoomSlider min={NORZAGARAY_MIN_ZOOM} max={NORZAGARAY_MAX_ZOOM} compact />
+      <DisableDragOnTouch />
       <TileLayer
         key={theme}
         attribution={TILE_ATTRIBUTION}
