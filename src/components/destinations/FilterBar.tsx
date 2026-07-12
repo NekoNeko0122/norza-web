@@ -27,7 +27,7 @@ export default function FilterBar({
   const categories: (DestinationCategory | "all")[] = ["all", ...(Object.keys(categoryMeta) as DestinationCategory[])];
 
   return (
-    <div className="sticky top-[73px] z-30 -mx-6 border-b border-edge bg-surface/85 px-6 py-4 backdrop-blur-md sm:-mx-8 sm:px-8">
+    <div className="sticky top-[73px] z-30 border-b border-edge bg-surface/85 px-6 py-4 backdrop-blur-md sm:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 rounded-full border border-edge bg-tint/50 px-4 py-2.5 sm:max-w-sm sm:flex-1">

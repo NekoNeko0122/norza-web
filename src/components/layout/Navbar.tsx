@@ -69,7 +69,7 @@ export default function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
           <Link
-            href="/destinations"
+            href="/plan-your-trip"
             className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-background transition-transform hover:scale-105"
           >
             Plan Your Trip
@@ -106,7 +106,7 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              href="/destinations"
+              href="/plan-your-trip"
               className="mt-2 rounded-xl bg-ink px-4 py-3 text-center text-sm font-semibold text-background"
             >
               Plan Your Trip

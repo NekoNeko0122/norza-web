@@ -38,15 +38,38 @@ export default function ProponentsSection() {
         transition={{ duration: 0.6 }}
         className="text-center"
       >
-        <div className="mb-3 flex items-center justify-center gap-5">
+        <div className="mb-6 inline-flex flex-col items-center gap-4 rounded-3xl border border-edge bg-surface/70 px-6 py-5 shadow-sm backdrop-blur sm:hidden">
+          <div className="flex items-center gap-5">
+            <Image
+              src="/logos/bcp-logo.png"
+              alt="Bestlink College of the Philippines"
+              width={367}
+              height={367}
+              className="h-14 w-14 shrink-0 object-contain"
+            />
+            <div className="h-10 w-px bg-edge" />
+            <Image
+              src="/logos/research-logo.png"
+              alt="BCP Center for Research and Development"
+              width={170}
+              height={161}
+              className="h-14 w-auto shrink-0 object-contain"
+            />
+          </div>
+          <span className="max-w-xs text-center text-xs font-semibold uppercase tracking-wider text-brand-500">
+            A Capstone Project by Bestlink College of the Philippines – Bulacan
+          </span>
+        </div>
+
+        <div className="mb-6 hidden items-center justify-center gap-5 rounded-full border border-edge bg-surface/70 px-8 py-4 shadow-sm backdrop-blur sm:inline-flex">
           <Image
             src="/logos/bcp-logo.png"
             alt="Bestlink College of the Philippines"
             width={367}
             height={367}
-            className="h-20 w-20 shrink-0 object-contain sm:h-24 sm:w-24"
+            className="h-16 w-16 shrink-0 object-contain md:h-20 md:w-20"
           />
-          <span className="max-w-[14rem] text-xs font-semibold uppercase tracking-wider text-brand-500 sm:max-w-none">
+          <span className="max-w-xs text-xs font-semibold uppercase tracking-wider text-brand-500 md:max-w-sm">
             A Capstone Project by Bestlink College of the Philippines – Bulacan
           </span>
           <Image
@@ -54,7 +77,7 @@ export default function ProponentsSection() {
             alt="BCP Center for Research and Development"
             width={170}
             height={161}
-            className="h-20 w-auto shrink-0 object-contain sm:h-24"
+            className="h-16 w-auto shrink-0 object-contain md:h-20"
           />
         </div>
         <h2 className="mt-2 font-display text-3xl font-semibold text-ink sm:text-4xl">
