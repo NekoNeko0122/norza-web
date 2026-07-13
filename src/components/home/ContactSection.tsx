@@ -9,7 +9,7 @@ type Status = "idle" | "sending" | "success" | "error";
 
 const EMPTY_FORM = { name: "", email: "", subject: "", message: "" };
 
-const WEB3FORMS_ACCESS_KEY = "2cb88d5e-084d-49f8-a627-4db7c7e3d565";
+const WEB3FORMS_ACCESS_KEY = "f3773848-b384-4135-97bb-77bce309fbef";
 
 // TODO: swap these "#" placeholders for the real profile/account links
 const SOCIALS = [
@@ -82,7 +82,7 @@ export default function ContactSection() {
           </p>
 
           <a
-            href="mailto:colocadoandrewed@gmail.com"
+            href="mailto:garciababyjane2020@gmail.com"
             className="mt-6 inline-flex items-center gap-2.5 text-sm font-medium text-ink-soft transition-colors hover:text-brand-600"
           >
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-tint text-brand-600">
