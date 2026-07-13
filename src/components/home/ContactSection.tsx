@@ -4,11 +4,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Send, CheckCircle2, AlertCircle, Mail, Phone } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa6";
-import { sendContactMessage } from "@/app/actions/contact";
 
 type Status = "idle" | "sending" | "success" | "error";
 
 const EMPTY_FORM = { name: "", email: "", subject: "", message: "" };
+
+const WEB3FORMS_ACCESS_KEY = "2cb88d5e-084d-49f8-a627-4db7c7e3d565";
 
 // TODO: swap these "#" placeholders for the real profile/account links
 const SOCIALS = [
@@ -31,13 +32,32 @@ export default function ContactSection() {
     e.preventDefault();
     setStatus("sending");
     setError("");
-    const result = await sendContactMessage(form);
-    if (result.success) {
-      setStatus("success");
-      setForm(EMPTY_FORM);
-    } else {
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: "New message from Discover Norzagaray",
+          from_name: "Discover Norzagaray",
+          name: form.name,
+          email: form.email,
+          subject_line: form.subject,
+          message: form.message,
+        }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setStatus("success");
+        setForm(EMPTY_FORM);
+      } else {
+        setStatus("error");
+        setError("Something went wrong sending your message. Please try again later.");
+      }
+    } catch {
       setStatus("error");
-      setError(result.error ?? "Something went wrong. Please try again.");
+      setError("Network error. Please check your connection and try again.");
     }
   }
 
