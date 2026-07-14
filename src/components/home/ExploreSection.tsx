@@ -33,7 +33,7 @@ export default function ExploreSection() {
           </h2>
           <p className="mt-2 max-w-lg text-ink-soft">
             Every destination pinned to its real spot on a map of Norzagaray
-            only — switch to list view any time.
+            only. Switch to list view any time.
           </p>
         </div>
         <ViewToggle view={view} onChange={setView} />

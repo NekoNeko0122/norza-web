@@ -22,7 +22,7 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   title: "Discover Norzagaray | Tourism Guide to Bulacan's Hidden Gem",
   description:
-    "Explore the caves, rivers, waterfalls, and heritage sites of Norzagaray, Bulacan — an interactive tourism guide with maps, reviews, and travel info.",
+    "Explore the caves, rivers, waterfalls, and heritage sites of Norzagaray, Bulacan: an interactive tourism guide with maps, reviews, and travel info.",
 };
 
 const NO_FLASH_SCRIPT = `

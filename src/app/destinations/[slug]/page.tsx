@@ -196,7 +196,7 @@ export default async function DestinationDetailPage({
               </div>
             ) : (
               <p className="mt-4 rounded-2xl border border-dashed border-brand-200 bg-tint/50 p-6 text-center text-sm text-ink-faint">
-                No reviews yet — be the first to share your experience!
+                No reviews yet. Be the first to share your experience!
               </p>
             )}
           </section>

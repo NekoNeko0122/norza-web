@@ -77,12 +77,12 @@ export const CATEGORY_VISIT_HOURS: Record<DestinationCategory, number> = {
 
 export const BASE_PACKING_LIST = [
   "Valid ID (some spots log visitors at the entrance)",
-  "Small bills and coins — entrance fees and vendors are usually cash-only",
+  "Small bills and coins, since entrance fees and vendors are usually cash-only",
   "Reusable water bottle",
   "Power bank, plus offline map screenshots or directions saved beforehand",
   "Basic first-aid kit and any personal medication",
   "Sunscreen and a hat",
-  "A trash bag — pack out what you pack in",
+  "A trash bag: pack out what you pack in",
 ];
 
 export const CONDITIONAL_PACKING: Record<string, string[]> = {
@@ -94,9 +94,9 @@ export const CONDITIONAL_PACKING: Record<string, string[]> = {
 };
 
 export const GENERAL_REMINDERS = [
-  "Mobile signal gets weak in the far mountain barangays — screenshot directions and contact numbers beforehand.",
-  "Roads to river and mountain spots can get rough or slippery after rain — a private vehicle or habal-habal handles them better than a sedan.",
+  "Mobile signal gets weak in the far mountain barangays, so screenshot directions and contact numbers beforehand.",
+  "Roads to river and mountain spots can get rough or slippery after rain, so a private vehicle or habal-habal handles them better than a sedan.",
   "Coordinate with local guides or caretakers ahead of time for caving, camping, or larger group bookings.",
-  "Bring exact change — entrance and environmental fees are usually small (₱10–₱60) and cash-only.",
+  "Bring exact change: entrance and environmental fees are usually small (₱10–₱60) and cash-only.",
   "Respect the environment: leave no trace, and ask permission before entering private farms or land.",
 ];

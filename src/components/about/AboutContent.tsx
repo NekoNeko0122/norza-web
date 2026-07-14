@@ -21,7 +21,7 @@ const FEATURES = [
     gradient: ["#f472b6", "#a855f7"] as [string, string],
     icon: Landmark,
     title: "History",
-    body: "The town played a role in the Philippine Revolution — Pinagrealan Cave sheltered Andres Bonifacio and the Katipuneros during the uprising against Spain.",
+    body: "The town played a role in the Philippine Revolution: Pinagrealan Cave sheltered Andres Bonifacio and the Katipuneros during the uprising against Spain.",
   },
   {
     category: "nature" as const,
@@ -85,7 +85,7 @@ export default function AboutContent() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft"
           >
-            A first-class municipality in Bulacan, Central Luzon — where the
+            A first-class municipality in Bulacan, Central Luzon, where the
             plains meet the Sierra Madre foothills. Roughly an hour from
             Metro Manila, Norzagaray is home to caves once used by
             revolutionaries, rivers that rival tropical getaways, and
@@ -206,7 +206,7 @@ export default function AboutContent() {
           <p className="mt-8 text-sm leading-relaxed text-ink-soft">
             This guide currently features {destinations.length} destinations
             and keeps growing as more spots around town get mapped and
-            documented — including hidden gems not yet listed on Google Maps.
+            documented, including hidden gems not yet listed on Google Maps.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">

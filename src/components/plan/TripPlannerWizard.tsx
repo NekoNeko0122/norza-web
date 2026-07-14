@@ -131,7 +131,7 @@ export default function TripPlannerWizard() {
         {step === 1 && (
           <StepShell key="step1" title="What do you want to experience?">
             <p className="-mt-4 text-sm text-ink-soft">
-              Pick as many as you like — we'll build your days around them. Leave it blank and we'll surprise you.
+              Pick as many as you like, and we'll build your days around them. Leave it blank and we'll surprise you.
             </p>
             <div className="flex flex-wrap gap-2.5">
               {INTEREST_OPTIONS.map((opt) => {

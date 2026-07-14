@@ -16,7 +16,7 @@ interface ChatMessage {
 const GREETING: ChatMessage = {
   id: "greeting",
   role: "assistant",
-  text: "Hi, I'm Andrew! 🌸 Your Norzagaray guide — ask me about destinations, fees, or how to get around, or tap a suggestion below.",
+  text: "Hi, I'm Andrew! 🌸 Your Norzagaray guide. Ask me about destinations, fees, or how to get around, or tap a suggestion below.",
 };
 
 export default function AIAssistant() {

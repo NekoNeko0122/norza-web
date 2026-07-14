@@ -1,13 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, type Easing } from "framer-motion";
 import { useTheme } from "@/components/theme/ThemeProvider";
 
+const DISCOVER_LETTERS = "Discover".split("");
 const WORD = "Norzagaray";
-const LETTER_STAGGER = 0.15;
-const LETTER_DURATION = 0.8;
-const WORD_START_DELAY = 0.5;
+const WORD_LETTERS = WORD.split("");
+const DISCOVER_LAST = DISCOVER_LETTERS.length - 1;
+const WORD_LAST = WORD_LETTERS.length - 1;
+
+// forward pass: the lens sweeps left to right across "Discover", revealing each letter once, permanently
+const FORWARD_STAGGER = 0.12;
+const LETTER_POP_DUR = 0.5;
+// the lens then drops down to the "Norzagaray" line before reversing direction
+const DESCEND_PAUSE = 0.4;
+// return pass: the lens glides back right to left across "Norzagaray", revealing it backwards with the same magnify pop
+const BACKWARD_STAGGER = 0.1;
+const FADE_TAIL = 0.3;
+
+const T_FORWARD_END = DISCOVER_LAST * FORWARD_STAGGER + LETTER_POP_DUR;
+const BACKWARD_START = T_FORWARD_END + DESCEND_PAUSE;
+const T_BACKWARD_END = BACKWARD_START + WORD_LAST * BACKWARD_STAGGER + LETTER_POP_DUR;
+const TOTAL_DURATION = T_BACKWARD_END + FADE_TAIL;
+
+export const HERO_HEADING_DONE = TOTAL_DURATION;
+
+// roughly the vertical center of each line within the shared two-line block,
+// based on the h1's leading-[1.03] line-height
+const LINE1_TOP = "0.52em";
+const LINE2_TOP = "1.55em";
 
 // mirrors the .text-gradient-brand CSS gradient stops — computed per letter
 // since `background-clip: text` doesn't inherit into animated child spans
@@ -48,60 +70,163 @@ function colorAt(stops: [number, string][], t: number) {
   return stops[stops.length - 1][1];
 }
 
+const POP_EASE: Easing = [0.34, 1.56, 0.64, 1];
+
+// shared "revealed by the lens" pop: hidden, out of focus, then a magnified pop into
+// permanent sharp focus — used identically by both words, just at different delays
+function letterPopTransition(delay: number) {
+  return {
+    delay,
+    duration: LETTER_POP_DUR,
+    ease: POP_EASE,
+    times: [0, 0.6, 1],
+  };
+}
+
+const letterPopAnimate = {
+  opacity: [0, 1, 1],
+  y: [6, 0, 0],
+  filter: ["blur(10px)", "blur(0px)", "blur(0px)"],
+  scale: [0.4, 1.18, 1],
+};
+
+const letterPopInitial = { opacity: 0, scale: 0.4, y: 6, filter: "blur(10px)" };
+
+function LensLayer() {
+  const lensTimes = [
+    0,
+    (LETTER_POP_DUR * 0.5) / TOTAL_DURATION,
+    T_FORWARD_END / TOTAL_DURATION,
+    BACKWARD_START / TOTAL_DURATION,
+    T_BACKWARD_END / TOTAL_DURATION,
+    1,
+  ];
+  const left = ["-8%", "6%", "94%", "94%", "-2%", "-10%"];
+  const top = [LINE1_TOP, LINE1_TOP, LINE1_TOP, LINE2_TOP, LINE2_TOP, LINE2_TOP];
+
+  return (
+    <>
+      {/* trailing echo — a faint ghost lagging behind the glass, selling real motion on the fast passes */}
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute z-[9] -mt-[0.8em] h-[1.6em] w-[1.6em] rounded-full border border-brand-300/40 blur-[2px]"
+        style={{ marginLeft: "-0.8em" }}
+        initial={{ left: left[0], top: top[0], opacity: 0, scale: 0.5 }}
+        animate={{
+          left,
+          top,
+          opacity: [0, 0.35, 0.35, 0.35, 0.35, 0],
+          scale: [0.5, 0.9, 0.9, 1.05, 0.9, 0.55],
+        }}
+        transition={{
+          duration: TOTAL_DURATION,
+          times: lensTimes,
+          delay: 0.07,
+          ease: [0.65, 0, 0.15, 1],
+        }}
+      />
+
+      {/* the magnifying glass — sweeps left to right unveiling "Discover", drops to the next line, then glides
+          right to left unveiling "Norzagaray" backwards, before fading out */}
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute z-10 -mt-[0.8em] h-[1.6em] w-[1.6em]"
+        style={{ marginLeft: "-0.8em" }}
+        initial={{ left: left[0], top: top[0], opacity: 0, scale: 0.5, rotate: -8 }}
+        animate={{
+          left,
+          top,
+          opacity: [0, 1, 1, 1, 1, 0],
+          scale: [0.5, 1, 1, 1.12, 1, 0.6],
+          rotate: [-8, 4, -4, 10, -6, 10],
+        }}
+        transition={{
+          duration: TOTAL_DURATION,
+          times: lensTimes,
+          ease: ["easeOut", [0.45, 0, 0.55, 1], "easeInOut", [0.45, 0, 0.55, 1], "easeIn"],
+        }}
+      >
+        <span className="relative block h-full w-full rounded-full border-2 border-brand-400/80 bg-gradient-to-br from-white/25 via-white/5 to-transparent shadow-[0_4px_18px_rgba(176,19,94,0.45)] backdrop-blur-[1px]">
+          <span className="absolute inset-[18%] rounded-full bg-gradient-to-br from-white/55 via-white/10 to-transparent" />
+          {/* moving specular glint, like light catching real glass */}
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 overflow-hidden rounded-full"
+            style={{
+              background:
+                "linear-gradient(115deg, transparent 32%, rgba(255,255,255,0.8) 48%, transparent 64%)",
+            }}
+            animate={{ opacity: [0.15, 0.85, 0.15], x: ["-35%", "35%", "-35%"] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <span className="absolute bottom-[-0.62em] right-[-0.48em] h-[0.75em] w-[0.16em] origin-top rotate-45 rounded-full bg-gradient-to-b from-brand-300 via-brand-500 to-brand-700 shadow-[0_1px_3px_rgba(0,0,0,0.35)]">
+            <span className="absolute -bottom-[0.05em] left-1/2 h-[0.2em] w-[0.2em] -translate-x-1/2 rounded-full bg-brand-700" />
+          </span>
+        </span>
+      </motion.span>
+    </>
+  );
+}
+
 export default function AnimatedHeading() {
   const { theme } = useTheme();
   const stops = theme === "dark" ? STOPS_DARK : STOPS_LIGHT;
   const [settled, setSettled] = useState(false);
 
   useEffect(() => {
-    const total = (WORD_START_DELAY + (WORD.length - 1) * LETTER_STAGGER + LETTER_DURATION) * 1000;
-    const t = setTimeout(() => setSettled(true), total);
+    const t = setTimeout(() => setSettled(true), T_BACKWARD_END * 1000);
     return () => clearTimeout(t);
   }, []);
 
   return (
     <h1 className="mt-7 font-display text-6xl font-semibold leading-[1.03] tracking-tight text-ink sm:text-7xl lg:text-8xl">
-      <motion.span
-        className="block"
-        initial={{ clipPath: "inset(0 100% 0 0)", opacity: 0 }}
-        animate={{ clipPath: "inset(0 0% 0 0)", opacity: 1 }}
-        transition={{ duration: 0.85, ease: [0.65, 0, 0.15, 1] }}
-      >
-        Discover
-      </motion.span>
-      <span className="italic" style={{ perspective: 600 }}>
-        {WORD.split("").map((letter, i) => (
-          <motion.span
-            key={i}
-            className="inline-block cursor-default"
-            style={{ color: colorAt(stops, i / (WORD.length - 1)) }}
-            initial={{ opacity: 0, y: 40, rotateX: -90 }}
-            animate={
-              settled
-                ? { opacity: 1, y: [0, -10, 0], rotateX: 0 }
-                : { opacity: 1, y: 0, rotateX: 0 }
-            }
-            whileHover={{ scale: 1.25, y: -14, transition: { duration: 0.2, ease: "easeOut" } }}
-            transition={
-              settled
-                ? {
-                    duration: 1.8,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: i * 0.09,
-                  }
-                : {
-                    type: "spring",
-                    stiffness: 260,
-                    damping: 16,
-                    delay: WORD_START_DELAY + i * LETTER_STAGGER,
-                    duration: LETTER_DURATION,
-                  }
-            }
-          >
-            {letter}
-          </motion.span>
-        ))}
+      <span className="relative isolate mx-auto block w-fit">
+        <span className="relative mx-auto block w-fit">
+          {DISCOVER_LETTERS.map((letter, i) => (
+            <motion.span
+              key={i}
+              className="inline-block"
+              initial={letterPopInitial}
+              animate={letterPopAnimate}
+              transition={letterPopTransition(i * FORWARD_STAGGER)}
+            >
+              {letter}
+            </motion.span>
+          ))}
+        </span>
+
+        <span className="relative mx-auto block w-fit italic">
+          {WORD_LETTERS.map((letter, i) => {
+            const delay = BACKWARD_START + (WORD_LAST - i) * BACKWARD_STAGGER;
+            return (
+              <motion.span
+                key={i}
+                className="inline-block cursor-default"
+                style={{ color: colorAt(stops, i / WORD_LAST) }}
+                initial={letterPopInitial}
+                animate={
+                  settled
+                    ? { opacity: 1, y: [0, -9, 0], rotate: [0, i % 2 === 0 ? 2 : -2, 0], scale: 1, filter: "blur(0px)" }
+                    : letterPopAnimate
+                }
+                transition={
+                  settled
+                    ? {
+                        duration: 1.6 + (i % 3) * 0.15,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: i * 0.09,
+                      }
+                    : letterPopTransition(delay)
+                }
+              >
+                {letter}
+              </motion.span>
+            );
+          })}
+        </span>
+
+        <LensLayer />
       </span>
     </h1>
   );

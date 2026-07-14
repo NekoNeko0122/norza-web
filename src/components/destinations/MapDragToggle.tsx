@@ -59,7 +59,7 @@ export default function MapDragToggle() {
         onClick={() => setEnabled((e) => !e)}
         aria-label={enabled ? "Disable map drag" : "Enable map drag"}
         aria-pressed={enabled}
-        title={enabled ? "Map drag on — tap to disable" : "Enable map drag"}
+        title={enabled ? "Map drag on: tap to disable" : "Enable map drag"}
         className={cn(
           "grid h-9 w-9 shrink-0 place-items-center rounded-full border shadow-lg backdrop-blur transition-colors",
           enabled

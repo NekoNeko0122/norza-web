@@ -16,7 +16,7 @@ const EVENTS = [
   {
     year: "20th Century",
     title: "A Farming and Dam Town",
-    body: "The town grows around agriculture and the construction of the Angat and Ipo dams — key water sources for all of Metro Manila.",
+    body: "The town grows around agriculture and the construction of the Angat and Ipo dams, key water sources for all of Metro Manila.",
   },
   {
     year: "Today",

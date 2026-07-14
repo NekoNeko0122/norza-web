@@ -85,7 +85,7 @@ export const destinations: Destination[] = [
     shortDescription:
       "A kilometer-long limestone cavern once used as a hideout by Andres Bonifacio and the Katipuneros.",
     description:
-      "Pinagrealan Cave is one of Norzagaray's most historically significant sites — a natural limestone cavern that served as a hideout for Filipino revolutionaries, including Andres Bonifacio and the Katipunan, during the Spanish and American colonial periods. Inside, guided spelunking trails wind past smooth stalagmites, pointed stalactites, and a striking circular chamber ceiling. It's a great half-day adventure for history buffs and first-time cavers alike.",
+      "Pinagrealan Cave is one of Norzagaray's most historically significant sites, a natural limestone cavern that served as a hideout for Filipino revolutionaries, including Andres Bonifacio and the Katipunan, during the Spanish and American colonial periods. Inside, guided spelunking trails wind past smooth stalagmites, pointed stalactites, and a striking circular chamber ceiling. It's a great half-day adventure for history buffs and first-time cavers alike.",
     coordinates: { lat: 14.8867, lng: 121.0983 },
     coordinatesVerified: false,
     onGoogleMaps: true,
@@ -97,7 +97,7 @@ export const destinations: Destination[] = [
     accessibility: [
       "Reachable by private vehicle or habal-habal (motorcycle-for-hire) from the town proper",
       "Short uphill trek to the cave mouth before entering",
-      "Not wheelchair accessible — narrow, uneven cave passages",
+      "Not wheelchair accessible: narrow, uneven cave passages",
       "A local guide is required and included in the fee",
     ],
     activities: ["Spelunking", "Historical tour", "Photography"],
@@ -138,7 +138,7 @@ export const destinations: Destination[] = [
     shortDescription:
       "A cliffside lookout with an unobstructed view of Ipo Dam framed by the Sierra Madre mountain range.",
     description:
-      "Locally known as \"Tanawan,\" the Ipo Dam View Deck is a favorite golden-hour spot for photographers and day-trippers. From the ridge, visitors get a sweeping view of Ipo Dam's turquoise waters set against the Sierra Madre mountains — one of the best sunrise and sunset viewpoints near Metro Manila.",
+      "Locally known as \"Tanawan,\" the Ipo Dam View Deck is a favorite golden-hour spot for photographers and day-trippers. From the ridge, visitors get a sweeping view of Ipo Dam's turquoise waters set against the Sierra Madre mountains, one of the best sunrise and sunset viewpoints near Metro Manila.",
     coordinates: { lat: 14.836, lng: 121.1263 },
     coordinatesVerified: false,
     onGoogleMaps: true,
@@ -148,10 +148,10 @@ export const destinations: Destination[] = [
     bestTimeToVisit: "Sunrise or late afternoon for the best light",
     difficulty: "easy",
     accessibility: [
-      "Best reached by private vehicle or motorcycle — limited public transport",
+      "Best reached by private vehicle or motorcycle: limited public transport",
       "Tricycles for hire from Barangay Bigte (~₱300 one-way as of last check)",
       "Short walk from the parking area to the viewing ridge",
-      "Not wheelchair accessible — unpaved cliffside terrain",
+      "Not wheelchair accessible: unpaved cliffside terrain",
     ],
     activities: ["Sightseeing", "Photography", "Picnics"],
     amenities: ["Small sari-sari store", "Limited parking"],
@@ -221,13 +221,13 @@ export const destinations: Destination[] = [
     onGoogleMaps: true,
     googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Cely+Farm+Norzagaray+Bulacan",
     entranceFee: "₱10",
-    openHours: "Daily, hours vary — call ahead",
+    openHours: "Daily, hours vary, call ahead",
     bestTimeToVisit: "Dry season for camping and overnight stays",
     difficulty: "easy",
     accessibility: [
       "Reachable by private vehicle or motorcycle via Barangay San Mateo",
       "Open grassy grounds, generally easy walking",
-      "Not wheelchair accessible — unpaved farm terrain",
+      "Not wheelchair accessible: unpaved farm terrain",
     ],
     activities: ["Camping", "Picnics", "Birthdays & gatherings", "Overnight bonding", "Pet-friendly visits"],
     amenities: ["Tent rentals", "Open grounds", "Parking", "Mountain view"],
@@ -255,7 +255,7 @@ export const destinations: Destination[] = [
     shortDescription:
       "Nicknamed \"Little El Nido,\" a crystal-clear river with cliff-jumping spots and caves to explore.",
     description:
-      "Maramo River earned its nickname \"Little El Nido\" for its strikingly clear, turquoise water winding between limestone cliffs. Visitors can swim, jump off low cliffs, and paddle into small caves carved along the riverbank — a compact but scenic adventure spot popular with younger travelers.",
+      "Maramo River earned its nickname \"Little El Nido\" for its strikingly clear, turquoise water winding between limestone cliffs. Visitors can swim, jump off low cliffs, and paddle into small caves carved along the riverbank, a compact but scenic adventure spot popular with younger travelers.",
     coordinates: { lat: 14.842, lng: 121.1145 },
     coordinatesVerified: false,
     onGoogleMaps: true,
@@ -266,7 +266,7 @@ export const destinations: Destination[] = [
     difficulty: "moderate",
     accessibility: [
       "Accessible by private vehicle plus a short trek to the riverbank",
-      "Rocky, slippery footing near the water — sturdy footwear recommended",
+      "Rocky, slippery footing near the water: sturdy footwear recommended",
       "Not wheelchair accessible",
     ],
     activities: ["Swimming", "Cliff jumping", "Cave exploring", "Photography"],
@@ -291,14 +291,14 @@ export const destinations: Destination[] = [
     barangay: "Pinaod",
     address: "Barangay Pinaod, Norzagaray, Bulacan",
     shortDescription:
-      "Two cascading waterfalls tucked in lush, rolling terrain — ideal for camping and hiking.",
+      "Two cascading waterfalls tucked in lush, rolling terrain, ideal for camping and hiking.",
     description:
       "Maranat Twin Falls features two side-by-side cascades flowing into cool, shallow pools, framed by fruit-bearing trees and rolling greenery. The surrounding trail is popular with hikers and campers looking for an overnight escape close to the metro.",
     coordinates: { lat: 14.9235, lng: 121.0805 },
     coordinatesVerified: false,
     onGoogleMaps: false,
     accessibility: [
-      "Requires a guided hike from the trailhead — no direct vehicle access to the falls",
+      "Requires a guided hike from the trailhead: no direct vehicle access to the falls",
       "Moderate trekking terrain with stream crossings",
       "Not wheelchair accessible",
     ],
@@ -311,7 +311,7 @@ export const destinations: Destination[] = [
       {
         author: "Kevin S.",
         rating: 5,
-        comment: "Camped overnight near the falls — peaceful and cold water is so refreshing after the hike.",
+        comment: "Camped overnight near the falls. Peaceful, and the cold water is so refreshing after the hike.",
         date: "March 2026",
       },
     ],
@@ -368,7 +368,7 @@ export const destinations: Destination[] = [
     bestTimeToVisit: "Town fiesta, November 30",
     difficulty: "easy",
     accessibility: [
-      "Located at the town proper — accessible by tricycle, jeepney, or private vehicle",
+      "Located at the town proper: accessible by tricycle, jeepney, or private vehicle",
       "Paved grounds, generally accessible for most visitors",
     ],
     activities: ["Church visit", "Prayer", "Cultural & heritage appreciation"],

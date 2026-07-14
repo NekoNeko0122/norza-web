@@ -21,7 +21,7 @@ export default function Footer() {
             </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/60">
               A modern guide to the caves, rivers, waterfalls, and heritage
-              spots of Norzagaray, Bulacan — built to grow as we discover more
+              spots of Norzagaray, Bulacan, built to grow as we discover more
               of this town together.
             </p>
             <div className="mt-5 flex gap-3">
@@ -92,7 +92,7 @@ export default function Footer() {
             </div>
             <p>© {new Date().getFullYear()} NekoNeko. Jane lang sapat na. Discover Norzagaray. </p>
           </div>
-          <p>Spot info evolving — help us keep it accurate.</p>
+          <p>Spot info evolving. Help us keep it accurate.</p>
         </div>
       </div>
     </footer>
