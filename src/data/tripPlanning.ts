@@ -3,7 +3,7 @@ import type { DestinationCategory } from "./destinations";
 export interface OriginPoint {
   id: string;
   label: string;
-  /** typical one-way driving time to Norzagaray by private car, in minutes — a rough, traffic-dependent estimate */
+  /** rough one-way drive time to Norzagaray by private car, in minutes (traffic varies) */
   baseTravelMinutes: number;
   distanceKm: number;
 }
@@ -24,7 +24,7 @@ export interface VehicleOption {
   id: VehicleType;
   label: string;
   note: string;
-  /** multiplier applied to travel time estimates — 1 = baseline private car */
+  /** multiplier on travel time estimates, 1 = baseline private car */
   speedFactor: number;
   transferBufferMinutes?: number;
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Send } from "lucide-react";
+import { X, Send, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateAssistantReply, premadeQuestions } from "@/lib/ai-responses";
 import AndrewMascot from "./AndrewMascot";
@@ -19,35 +19,101 @@ const GREETING: ChatMessage = {
   text: "Hi, I'm Andrew! 🌸 Your Norzagaray guide. Ask me about destinations, fees, or how to get around, or tap a suggestion below.",
 };
 
+const STORAGE_KEY = "andrew-chat-v1";
+const MIN_REPLY_DELAY = 450;
+
+async function fetchLiveReply(message: string, history: ChatMessage[]): Promise<string | null> {
+  try {
+    const res = await fetch("/api/assistant", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message,
+        history: history.slice(-8).map((m) => ({ role: m.role, text: m.text })),
+      }),
+    });
+    if (!res.ok) return null;
+    const data: { reply?: unknown } = await res.json();
+    return typeof data.reply === "string" && data.reply.trim() ? data.reply : null;
+  } catch {
+    return null;
+  }
+}
+
+// minimum visible "typing" delay, kept outside the component (timing math
+// can't live in render/hook scope)
+async function fetchLiveReplyWithMinDelay(message: string, history: ChatMessage[]): Promise<string | null> {
+  const started = Date.now();
+  const reply = await fetchLiveReply(message, history);
+  const remaining = MIN_REPLY_DELAY - (Date.now() - started);
+  if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
+  return reply;
+}
+
+function loadStoredMessages(): ChatMessage[] {
+  if (typeof window === "undefined") return [GREETING];
+  try {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved) as ChatMessage[];
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    // bad storage, just start fresh
+  }
+  return [GREETING];
+}
+
 export default function AIAssistant() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
+  const [messages, setMessages] = useState<ChatMessage[]>(loadStoredMessages);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [liveMode, setLiveMode] = useState<boolean | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } catch {
+      // no storage, conversation just won't persist
+    }
+  }, [messages]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, open, typing]);
 
-  function ask(question: string) {
+  async function ask(question: string) {
     if (!question.trim()) return;
+    const historySoFar = messages;
     const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", text: question };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setTyping(true);
 
-    window.setTimeout(() => {
-      const reply = generateAssistantReply(question);
-      const botMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", text: reply };
-      setTyping(false);
-      setMessages((prev) => [...prev, botMsg]);
-    }, 550 + Math.random() * 400);
+    const liveReply = await fetchLiveReplyWithMinDelay(question, historySoFar);
+
+    setLiveMode(liveReply !== null);
+    const reply = liveReply ?? generateAssistantReply(question);
+    const botMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", text: reply };
+    setTyping(false);
+    setMessages((prev) => [...prev, botMsg]);
+  }
+
+  function resetChat() {
+    setMessages([GREETING]);
+    setLiveMode(null);
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // nothing to clean up
+    }
   }
 
   return (
     <>
-      {/* Floating bubble — rotating gradient ring behind a glassy core */}
+      {/* floating bubble: rotating gradient ring behind a glassy core */}
       <div className="fixed bottom-5 right-5 z-[2000] h-14 w-14 sm:bottom-7 sm:right-7">
         <div
           className="animate-spin-slow absolute -inset-[5px] rounded-full opacity-90 blur-[1px]"
@@ -115,13 +181,30 @@ export default function AIAssistant() {
             className="fixed bottom-24 right-5 z-[2000] flex w-[calc(100vw-2.5rem)] max-w-sm flex-col overflow-hidden rounded-3xl border border-edge bg-surface shadow-2xl shadow-brand-900/20 sm:bottom-28 sm:right-7"
           >
             <div className="flex items-center gap-3 bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-4 text-white">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white/20">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/20">
                 <AndrewMascot size={26} animated />
               </span>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="font-display text-sm font-semibold leading-tight">Andrew</p>
-                <p className="text-xs text-white/80">Your Norzagaray guide</p>
+                <p className="flex items-center gap-1.5 text-xs text-white/80">
+                  <motion.span
+                    animate={liveMode ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+                    transition={{ duration: 1.6, repeat: liveMode ? Infinity : 0, ease: "easeInOut" }}
+                    className={cn("h-1.5 w-1.5 rounded-full", liveMode ? "bg-emerald-300" : "bg-white/50")}
+                  />
+                  {liveMode ? "AI-powered guide" : "Your Norzagaray guide"}
+                </p>
               </div>
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.1, rotate: -35 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={resetChat}
+                aria-label="Start a new conversation"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+              >
+                <RotateCcw size={15} />
+              </motion.button>
             </div>
 
             <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-tint/40 px-4 py-4">
@@ -131,11 +214,16 @@ export default function AIAssistant() {
                   initial={{ opacity: 0, y: 12, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ type: "spring", stiffness: 420, damping: 30 }}
-                  className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
+                  className={cn("flex items-end gap-2", m.role === "user" ? "justify-end" : "justify-start")}
                 >
+                  {m.role === "assistant" && (
+                    <span className="mb-0.5 grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand-400 to-brand-600">
+                      <AndrewMascot size={14} />
+                    </span>
+                  )}
                   <p
                     className={cn(
-                      "max-w-[85%] whitespace-pre-line rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm",
+                      "max-w-[80%] whitespace-pre-line rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm",
                       m.role === "user"
                         ? "rounded-br-sm bg-ink text-background"
                         : "rounded-bl-sm border border-edge bg-surface text-ink"
@@ -151,8 +239,11 @@ export default function AIAssistant() {
                   initial={{ opacity: 0, y: 12, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex justify-start"
+                  className="flex items-end justify-start gap-2"
                 >
+                  <span className="mb-0.5 grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand-400 to-brand-600">
+                    <AndrewMascot size={14} />
+                  </span>
                   <span className="flex items-center gap-1 rounded-2xl rounded-bl-sm border border-edge bg-surface px-4 py-3 shadow-sm">
                     {[0, 1, 2].map((i) => (
                       <motion.span
@@ -192,7 +283,7 @@ export default function AIAssistant() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type a question..."
-                  className="flex-1 rounded-full border border-edge bg-tint/60 px-4 py-2 text-sm text-ink outline-none focus:border-brand-400"
+                  className="flex-1 rounded-full border border-edge bg-tint/60 px-4 py-2 text-sm text-ink outline-none transition-shadow focus:border-brand-400 focus:shadow-[0_0_0_3px_rgba(216,31,116,0.12)]"
                 />
                 <motion.button
                   whileHover={{ scale: 1.08 }}

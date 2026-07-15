@@ -7,13 +7,9 @@ import { Hand } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsTouchDevice } from "@/lib/useIsTouchDevice";
 
-/**
- * On touch devices the map starts with dragging disabled so a single-finger
- * swipe scrolls the page instead of panning the map. This control lets
- * someone opt in to drag/pan while they're actively exploring the map, and
- * automatically opts back out once the map scrolls mostly out of view so
- * the rest of the page keeps scrolling normally.
- */
+// on touch, map dragging starts disabled so swipes scroll the page instead.
+// this toggle lets you opt in while exploring, and turns back off once the
+// map scrolls mostly out of view
 export default function MapDragToggle() {
   const map = useMap();
   const isTouch = useIsTouchDevice();

@@ -1,8 +1,7 @@
 import { NORZAGARAY_BOUNDARY } from "@/data/norzagaray-boundary";
 
-// Center kept near the town proper / destination cluster rather than the
-// polygon centroid, since the municipality stretches far into the sparsely
-// visited Sierra Madre watershed to the east.
+// near the town proper, not the polygon centroid (that's pulled east by the
+// mostly-empty Sierra Madre watershed part of the municipality)
 export const NORZAGARAY_CENTER: [number, number] = [14.8985, 121.0895];
 
 const lats = NORZAGARAY_BOUNDARY.map((p) => p[0]);
@@ -14,8 +13,7 @@ export const NORZAGARAY_BOUNDS: [[number, number], [number, number]] = [
   [Math.max(...lats) + PAD, Math.max(...lngs) + PAD],
 ];
 
-// A huge outer ring so that, paired with the boundary as a hole, the mask
-// polygon covers the entire visible world outside Norzagaray.
+// huge outer ring + the boundary as a hole = mask covering everything outside town
 const WORLD_RING: [number, number][] = [
   [-85, -180],
   [-85, 180],

@@ -1,10 +1,5 @@
-// ---------------------------------------------------------------------------
-// Norzagaray Tourism — Destinations Data
-// ---------------------------------------------------------------------------
-// This file is the single source of truth for every destination on the site.
-// To add a new place, append a new object to the `destinations` array below
-// following the `Destination` shape. See README.md for a full field guide.
-// ---------------------------------------------------------------------------
+// Norzagaray tourism data. Add new places to the destinations array below,
+// matching the Destination shape.
 
 export type DestinationCategory =
   | "nature"

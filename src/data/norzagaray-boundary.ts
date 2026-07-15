@@ -1,6 +1,4 @@
-// Simplified municipal boundary of Norzagaray, Bulacan, sourced from OSM/Nominatim
-// (relation boundary, decimated to ~300 vertices). Used to mask the interactive
-// map so only the town's own shape is ever visible, regardless of pan/zoom.
+// simplified boundary from OSM/Nominatim (~300 vertices), used to mask the map
 export const NORZAGARAY_BOUNDARY: [number, number][] = [
   [14.89725, 121.02256], [14.86753, 121.02517], [14.86667, 121.02522], [14.866, 121.02541],
   [14.86436, 121.02696], [14.85862, 121.02804], [14.85802, 121.02863], [14.85687, 121.02837],

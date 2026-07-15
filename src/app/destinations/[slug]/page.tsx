@@ -57,7 +57,7 @@ export default async function DestinationDetailPage({
 
   return (
     <div className="pb-24">
-      {/* Hero banner — always dark-scrimmed over the art, independent of site theme */}
+      {/* hero banner, always dark-scrimmed over the art regardless of site theme */}
       <div className="relative h-[46vh] min-h-[320px] w-full overflow-hidden">
         <DestinationArt
           gradient={destination.gradient}

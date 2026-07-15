@@ -5,7 +5,7 @@
   --background: #fff5f8;
   --foreground: #2b0f1e;
 
-  /* Brand pink scale — modern rose/fuchsia, same family in both themes */
+  /* brand pink scale, rose/fuchsia, same family in both themes */
   --color-brand-50: #fff0f6;
   --color-brand-100: #ffe0ed;
   --color-brand-200: #ffbfdd;
@@ -18,16 +18,16 @@
   --color-brand-900: #630c3c;
   --color-brand-950: #3d0526;
 
-  /* Deep plum — used for elements that stay dark regardless of theme (footer) */
+  /* deep plum, for stuff that stays dark regardless of theme (footer) */
   --color-plum-950: #1a0a14;
   --color-plum-900: #250e1c;
   --color-plum-800: #341327;
 
-  /* Accent gold, used sparingly */
+  /* accent gold, used sparingly */
   --color-gold-400: #f5c26b;
   --color-gold-500: #eba83f;
 
-  /* Semantic surface tokens — these flip under .dark below */
+  /* surface tokens, flip under .dark below */
   --color-surface: #ffffff;
   --color-surface-2: #fff8fb;
   --color-edge: #ffe0ed;

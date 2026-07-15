@@ -22,8 +22,8 @@ export default function PlanYourTripPage() {
             Plan Your <span className="text-gradient-brand italic">Norzagaray</span> Getaway
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">
-            Tell us about your group, your ride, and what you're into, and
-            we'll build a full itinerary with travel times, difficulty,
+            Tell us about your group, your ride, and what you&apos;re into, and
+            we&apos;ll build a full itinerary with travel times, difficulty,
             directions, and what to pack.
           </p>
         </div>

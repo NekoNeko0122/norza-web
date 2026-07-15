@@ -77,7 +77,7 @@ export default function ContactSection() {
             Contact the Team
           </h2>
           <p className="mt-4 max-w-md text-ink-soft">
-            Spotted an error, have a suggestion, or know a hidden spot? We'd
+            Spotted an error, have a suggestion, or know a hidden spot? We&apos;d
             love to hear from you. Send a message or find us directly below.
           </p>
 
@@ -211,7 +211,7 @@ export default function ContactSection() {
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-2 rounded-xl bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-600"
             >
-              <CheckCircle2 size={16} /> Message sent! We'll get back to you soon.
+              <CheckCircle2 size={16} /> Message sent! We&apos;ll get back to you soon.
             </motion.p>
           )}
           {status === "error" && (

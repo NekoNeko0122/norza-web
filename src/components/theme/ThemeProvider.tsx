@@ -10,6 +10,11 @@ const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // always starts "light" to match the server-rendered HTML (the server has no
+  // access to localStorage/matchMedia); the inline no-flash script in layout.tsx
+  // already set the real class on <html> before paint, this just brings React's
+  // own state in sync with it after hydration, so it can't ever have "wrong SSR
+  // markup" to reconcile against
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
