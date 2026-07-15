@@ -12,7 +12,12 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/destinations", label: "Destinations" },
   { href: "/about", label: "About Norzagaray" },
+  { href: "/team", label: "Meet the Team" },
 ];
+
+function isActive(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -68,7 +73,7 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-1 rounded-full border border-edge bg-surface/70 p-1 md:flex">
           {links.map((link) => {
-            const active = pathname === link.href;
+            const active = isActive(pathname, link.href);
             return (
               <Link key={link.href} href={link.href} className="relative px-1 py-1">
                 {active && (
@@ -164,7 +169,7 @@ export default function Navbar() {
                     href={link.href}
                     className={cn(
                       "block rounded-xl px-4 py-3 text-sm font-medium",
-                      pathname === link.href
+                      isActive(pathname, link.href)
                         ? "bg-gradient-to-r from-brand-500 to-brand-600 text-white"
                         : "text-ink-soft hover:bg-tint"
                     )}

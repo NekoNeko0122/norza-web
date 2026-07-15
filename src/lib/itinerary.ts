@@ -66,9 +66,9 @@ function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
 }
 
 function travelMinutesBetween(a: { lat: number; lng: number }, b: { lat: number; lng: number }, speedFactor: number) {
-  const roadKm = haversineKm(a, b) * 1.35; // fudge factor for winding roads vs straight-line distance
+  const roadKm = haversineKm(a, b) * 1.35; // road fudge factor
   const avgSpeedKmh = 24 / speedFactor;
-  return Math.round((roadKm / avgSpeedKmh) * 60 + 8); // +8 min buffer for parking/starting
+  return Math.round((roadKm / avgSpeedKmh) * 60 + 8); // parking buffer
 }
 
 function visitHoursFor(d: Destination) {

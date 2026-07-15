@@ -1,22 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
-
-const PROPONENTS = [
-  "Baby Jane Garcia",
-  "Vonzell Mae Cabuguas",
-  "Grace Anne Certeza",
-  "Chrisdan Lyn Lirado",
-  "Sherwin Rodriguez",
-];
-
-function initialsOf(name: string) {
-  const parts = name.split(" ").filter(Boolean);
-  const first = parts[0]?.[0] ?? "";
-  const last = parts[parts.length - 1]?.[0] ?? "";
-  return (first + last).toUpperCase();
-}
+import { ArrowUpRight } from "lucide-react";
+import { TEAM_MEMBERS } from "@/data/team";
+import CartoonAvatar from "@/components/ui/CartoonAvatar";
 
 const container: Variants = {
   hidden: {},
@@ -30,7 +19,7 @@ const item: Variants = {
 
 export default function ProponentsSection() {
   return (
-    <section className="mx-auto max-w-5xl px-6 py-20 sm:px-8">
+    <section id="proponents" className="mx-auto max-w-5xl scroll-mt-24 px-6 py-20 sm:px-8">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -93,20 +82,26 @@ export default function ProponentsSection() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.3 }}
-        className="mt-10 flex flex-wrap items-center justify-center gap-4"
+        className="mx-auto mt-10 max-w-2xl divide-y divide-edge overflow-hidden rounded-3xl border border-edge bg-surface shadow-sm"
       >
-        {PROPONENTS.map((name) => (
+        {TEAM_MEMBERS.map((member) => (
           <motion.li
-            key={name}
+            key={member.slug}
             variants={item}
-            whileHover={{ y: -6, scale: 1.04 }}
-            className="group flex items-center gap-3 rounded-full border border-edge bg-surface py-2.5 pl-2.5 pr-6 shadow-sm transition-colors hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10"
+            className="flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-tint/40 sm:px-6"
           >
-            <span className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 font-display text-sm font-semibold text-white">
-              <span className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/25" />
-              <span className="relative">{initialsOf(name)}</span>
-            </span>
-            <span className="font-medium text-ink">{name}</span>
+            <CartoonAvatar slug={member.slug} name={member.name} size={52} className="shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium text-ink">{member.name}</p>
+              <p className="truncate text-xs text-ink-faint">{member.role}</p>
+            </div>
+            <Link
+              href={`/team/${member.slug}`}
+              aria-label={`View ${member.name}'s profile`}
+              className="group grid h-10 w-10 shrink-0 place-items-center rounded-full border border-edge text-ink-soft transition-colors hover:border-brand-300 hover:bg-tint hover:text-brand-600"
+            >
+              <ArrowUpRight size={17} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
           </motion.li>
         ))}
       </motion.ul>

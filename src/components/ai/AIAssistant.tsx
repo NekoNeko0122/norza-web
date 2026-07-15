@@ -40,8 +40,7 @@ async function fetchLiveReply(message: string, history: ChatMessage[]): Promise<
   }
 }
 
-// minimum visible "typing" delay, kept outside the component (timing math
-// can't live in render/hook scope)
+// min typing delay
 async function fetchLiveReplyWithMinDelay(message: string, history: ChatMessage[]): Promise<string | null> {
   const started = Date.now();
   const reply = await fetchLiveReply(message, history);
@@ -259,19 +258,32 @@ export default function AIAssistant() {
             </div>
 
             <div className="border-t border-edge bg-surface px-3 py-3">
-              <div className="mb-2 flex flex-wrap gap-1.5">
-                {premadeQuestions.slice(0, 4).map((q) => (
-                  <motion.button
-                    key={q.id}
-                    whileHover={{ scale: 1.04, y: -1 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => ask(q.question)}
-                    className="rounded-full border border-edge bg-tint px-3 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-tint-strong dark:text-brand-300"
+              <AnimatePresence initial={false}>
+                {messages.length <= 1 && (
+                  <motion.div
+                    key="suggestions"
+                    initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+                    animate={{ height: "auto", opacity: 1, marginBottom: 8 }}
+                    exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="overflow-hidden"
                   >
-                    {q.question}
-                  </motion.button>
-                ))}
-              </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {premadeQuestions.slice(0, 4).map((q) => (
+                        <motion.button
+                          key={q.id}
+                          whileHover={{ scale: 1.04, y: -1 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => ask(q.question)}
+                          className="rounded-full border border-edge bg-tint px-3 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-tint-strong dark:text-brand-300"
+                        >
+                          {q.question}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();

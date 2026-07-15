@@ -10,12 +10,13 @@ const WORD_LETTERS = WORD.split("");
 const DISCOVER_LAST = DISCOVER_LETTERS.length - 1;
 const WORD_LAST = WORD_LETTERS.length - 1;
 
-// forward pass: lens sweeps across "Discover"
+// forward pass: "Discover"
 const FORWARD_STAGGER = 0.12;
 const LETTER_POP_DUR = 0.5;
-const LETTER_POP_PEAK = 0.6; // when each letter is "in focus"
+const LETTER_POP_PEAK = 0.6; // overshoot peak
+const LENS_ARRIVAL = 0.275; // matches pop-in curve
 const DESCEND_PAUSE = 0.4;
-// backward pass: lens sweeps back across "Norzagaray"
+// backward pass: "Norzagaray"
 const BACKWARD_STAGGER = 0.1;
 const FADE_TAIL = 0.3;
 
@@ -26,12 +27,10 @@ const TOTAL_DURATION = T_BACKWARD_END + FADE_TAIL;
 
 export const HERO_HEADING_DONE = TOTAL_DURATION;
 
-// rough vertical center of each line (matches leading-[1.03])
 const LINE1_TOP = "0.52em";
 const LINE2_TOP = "1.55em";
 
-// matches the .text-gradient-brand CSS stops, computed per letter since
-// background-clip: text doesn't inherit into animated child spans
+// matches .text-gradient-brand stops
 const STOPS_LIGHT: [number, string][] = [
   [0, "#d81f74"],
   [0.45, "#fb5fa8"],
@@ -69,7 +68,6 @@ function colorAt(stops: [number, string][], t: number) {
   return stops[stops.length - 1][1];
 }
 
-// overshoot only on the way up so it doesn't wobble settling back down
 const POP_EASE: Easing[] = [[0.34, 1.56, 0.64, 1], "easeOut"];
 
 function letterPopTransition(delay: number) {
@@ -90,7 +88,6 @@ const letterPopAnimate = {
 
 const letterPopInitial = { opacity: 0, scale: 0.4, y: 6, filter: "blur(10px)" };
 
-// one anchor per letter so the lens is always exactly where it's revealing
 type LensPointKind = "entrance" | "letter" | "settle" | "descend" | "exit";
 
 interface LensPoint {
@@ -110,7 +107,7 @@ function buildLensPoints(): LensPoint[] {
 
   DISCOVER_LETTERS.forEach((_, i) => {
     points.push({
-      t: i * FORWARD_STAGGER + LETTER_POP_DUR * LETTER_POP_PEAK,
+      t: i * FORWARD_STAGGER + LETTER_POP_DUR * LENS_ARRIVAL,
       left: 6 + 88 * (i / DISCOVER_LAST),
       top: LINE1_TOP,
       opacity: 1,
@@ -131,10 +128,10 @@ function buildLensPoints(): LensPoint[] {
     kind: "descend",
   });
 
-  WORD_LETTERS.forEach((_, i) => {
-    const k = WORD_LAST - i; // reveal order: rightmost letter first
+  // k ascending, keeps times monotonic
+  for (let k = 0; k <= WORD_LAST; k++) {
     points.push({
-      t: BACKWARD_START + k * BACKWARD_STAGGER + LETTER_POP_DUR * LETTER_POP_PEAK,
+      t: BACKWARD_START + k * BACKWARD_STAGGER + LETTER_POP_DUR * LENS_ARRIVAL,
       left: 94 - 96 * (k / WORD_LAST),
       top: LINE2_TOP,
       opacity: 1,
@@ -142,10 +139,9 @@ function buildLensPoints(): LensPoint[] {
       rotate: -3,
       kind: "letter",
     });
-  });
+  }
 
   points.push({ t: T_BACKWARD_END, left: -2, top: LINE2_TOP, opacity: 1, scale: 1, rotate: -3, kind: "settle" });
-  // stay put here, just fade + shrink a little, no drift or spin on the way out
   points.push({ t: TOTAL_DURATION, left: -2, top: LINE2_TOP, opacity: 0, scale: 0.7, rotate: -3, kind: "exit" });
 
   return points;
@@ -159,8 +155,6 @@ const LENS_OPACITY = LENS_POINTS.map((p) => p.opacity);
 const LENS_SCALE = LENS_POINTS.map((p) => p.scale);
 const LENS_ROTATE = LENS_POINTS.map((p) => p.rotate);
 
-// letter-to-letter hops stay linear so they read as one glide; the entrance/
-// descend/settle/exit beats keep an eased, weighted feel
 function segmentEase(a: LensPointKind, b: LensPointKind): Easing {
   if (a === "entrance") return "easeOut";
   if (b === "exit") return "easeOut";
@@ -170,8 +164,6 @@ function segmentEase(a: LensPointKind, b: LensPointKind): Easing {
 
 const LENS_EASE: Easing[] = LENS_POINTS.slice(1).map((p, i) => segmentEase(LENS_POINTS[i].kind, p.kind));
 
-// glint sweeps a few times, then freezes before the fade-out instead of
-// looping forever (that used to keep sliding after everything else settled)
 const GLINT_CYCLES = 4;
 const GLINT_ACTIVE_DURATION = T_BACKWARD_END;
 const GLINT_TIMES = Array.from({ length: GLINT_CYCLES * 2 + 1 }, (_, i) => i / (GLINT_CYCLES * 2));
@@ -181,7 +173,7 @@ const GLINT_OPACITY = GLINT_TIMES.map((_, i) => (i % 2 === 0 ? 0.15 : 0.85));
 function LensLayer() {
   return (
     <>
-      {/* faint trailing ghost, sells motion on the fast passes */}
+      {/* trailing ghost */}
       <motion.span
         aria-hidden
         className="pointer-events-none absolute z-[9] -mt-[0.8em] h-[1.6em] w-[1.6em] rounded-full border border-brand-300/40 blur-[2px]"
@@ -196,7 +188,7 @@ function LensLayer() {
         transition={{ duration: TOTAL_DURATION, times: LENS_TIMES, delay: 0.07, ease: LENS_EASE }}
       />
 
-      {/* the magnifying glass itself */}
+      {/* lens */}
       <motion.span
         aria-hidden
         className="pointer-events-none absolute z-10 -mt-[0.8em] h-[1.6em] w-[1.6em]"

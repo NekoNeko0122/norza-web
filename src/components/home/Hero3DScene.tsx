@@ -12,7 +12,7 @@ function PointerParallax({ children }: { children: React.ReactNode }) {
 
   useFrame(() => {
     if (!group.current) return;
-    // keep this barely noticeable, should feel still not reactive
+    
     group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, pointer.x * 0.006, 0.01);
     group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -pointer.y * 0.004, 0.01);
   });
