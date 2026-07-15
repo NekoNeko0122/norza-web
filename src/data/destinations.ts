@@ -125,6 +125,9 @@ export const destinations: Destination[] = [
       },
     ],
     gradient: ["#f472b6", "#a855f7"],
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/0106jfRoads_Welcome_Bigte_Norzagaray_Pinagrealan_Cave_villagesfvf_03.JPG/960px-0106jfRoads_Welcome_Bigte_Norzagaray_Pinagrealan_Cave_villagesfvf_03.JPG",
+    ],
     tags: ["cave", "history", "adventure", "spelunking", "katipunan"],
     featured: true,
   },
@@ -164,6 +167,9 @@ export const destinations: Destination[] = [
       },
     ],
     gradient: ["#fb7185", "#f9a8d4"],
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/09596jfWatershed_Dams_San_Mateo_Lorenzo_Hilltop_Norzagaray_Bulacanfvf_25.JPG/960px-09596jfWatershed_Dams_San_Mateo_Lorenzo_Hilltop_Norzagaray_Bulacanfvf_25.JPG",
+    ],
     tags: ["viewpoint", "dam", "sunrise", "mountains", "photography"],
     featured: true,
   },
@@ -202,6 +208,9 @@ export const destinations: Destination[] = [
       },
     ],
     gradient: ["#f9a8d4", "#c084fc"],
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/01408jfHilltop_San_Mateo_Sitio_Bitbit_Lorenzo_River_Bridge_Norzagaray_Bulacan_villagesfvf_07.JPG/960px-01408jfHilltop_San_Mateo_Sitio_Bitbit_Lorenzo_River_Bridge_Norzagaray_Bulacan_villagesfvf_07.JPG",
+    ],
     tags: ["river", "bridge", "swimming", "park", "family"],
     featured: true,
   },
@@ -345,6 +354,9 @@ export const destinations: Destination[] = [
     entranceFee: "₱20 – ₱30 (varies by area operator)",
     reviews: [],
     gradient: ["#38bdf8", "#e879f9"],
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/01975jfAngat_Matictic_Bakas_Kankayan_Balugan_Tourism_Rivers_Norzagaray_Bulacan_villagesfvf_03.JPG/960px-01975jfAngat_Matictic_Bakas_Kankayan_Balugan_Tourism_Rivers_Norzagaray_Bulacan_villagesfvf_03.JPG",
+    ],
     tags: ["river", "swimming", "family", "picnic"],
     featured: false,
   },
@@ -385,6 +397,9 @@ export const destinations: Destination[] = [
       },
     ],
     gradient: ["#fda4af", "#fbcfe8"],
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/JfNorzagaray1705ChurchStAndrewfvf_05.JPG/960px-JfNorzagaray1705ChurchStAndrewfvf_05.JPG",
+    ],
     tags: ["church", "heritage", "history", "religious"],
     featured: false,
   },

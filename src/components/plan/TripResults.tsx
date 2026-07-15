@@ -104,6 +104,7 @@ export default function TripResults({
                     <DestinationArt
                       gradient={stop.destination.gradient}
                       category={stop.destination.category}
+                      images={stop.destination.images}
                       className="h-24 w-full shrink-0 rounded-2xl sm:w-32"
                     />
                     <div className="min-w-0 flex-1">
@@ -168,7 +169,7 @@ export default function TripResults({
       {plan.bonusSuggestions.length > 0 && (
         <div className="rounded-3xl border border-dashed border-brand-200 bg-tint/40 p-6 sm:p-8">
           <h3 className="font-display text-lg font-semibold text-ink">If You Have More Time</h3>
-          <p className="mt-1 text-sm text-ink-soft">These also matched what you're looking for, but didn't fit your schedule.</p>
+          <p className="mt-1 text-sm text-ink-soft">These also matched what you&apos;re looking for, but didn&apos;t fit your schedule.</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {plan.bonusSuggestions.map((d) => (
               <Link

@@ -62,6 +62,7 @@ export default async function DestinationDetailPage({
         <DestinationArt
           gradient={destination.gradient}
           category={destination.category}
+          images={destination.images}
           className="h-full w-full"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-plum-950/85 via-plum-950/20 to-transparent" />

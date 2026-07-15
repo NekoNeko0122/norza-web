@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, type Easing } from "framer-motion";
 import { useTheme } from "@/components/theme/ThemeProvider";
 
@@ -13,6 +13,7 @@ const WORD_LAST = WORD_LETTERS.length - 1;
 // forward pass: the lens sweeps left to right across "Discover", revealing each letter once, permanently
 const FORWARD_STAGGER = 0.12;
 const LETTER_POP_DUR = 0.5;
+const LETTER_POP_PEAK = 0.6; // fraction into each letter's own pop where it's fully "in focus"
 // the lens then drops down to the "Norzagaray" line before reversing direction
 const DESCEND_PAUSE = 0.4;
 // return pass: the lens glides back right to left across "Norzagaray", revealing it backwards with the same magnify pop
@@ -70,7 +71,9 @@ function colorAt(stops: [number, string][], t: number) {
   return stops[stops.length - 1][1];
 }
 
-const POP_EASE: Easing = [0.34, 1.56, 0.64, 1];
+// the bouncy overshoot only applies to the "grow to peak" segment; settling back down to
+// rest uses a plain ease so it doesn't also overshoot *below* 1 and wobble on the way in
+const POP_EASE: Easing[] = [[0.34, 1.56, 0.64, 1], "easeOut"];
 
 // shared "revealed by the lens" pop: hidden, out of focus, then a magnified pop into
 // permanent sharp focus — used identically by both words, just at different delays
@@ -79,7 +82,7 @@ function letterPopTransition(delay: number) {
     delay,
     duration: LETTER_POP_DUR,
     ease: POP_EASE,
-    times: [0, 0.6, 1],
+    times: [0, LETTER_POP_PEAK, 1],
   };
 }
 
@@ -92,18 +95,88 @@ const letterPopAnimate = {
 
 const letterPopInitial = { opacity: 0, scale: 0.4, y: 6, filter: "blur(10px)" };
 
-function LensLayer() {
-  const lensTimes = [
-    0,
-    (LETTER_POP_DUR * 0.5) / TOTAL_DURATION,
-    T_FORWARD_END / TOTAL_DURATION,
-    BACKWARD_START / TOTAL_DURATION,
-    T_BACKWARD_END / TOTAL_DURATION,
-    1,
-  ];
-  const left = ["-8%", "6%", "94%", "94%", "-2%", "-10%"];
-  const top = [LINE1_TOP, LINE1_TOP, LINE1_TOP, LINE2_TOP, LINE2_TOP, LINE2_TOP];
+// one keyframe anchor per letter, at the exact moment that letter reaches peak focus —
+// so the lens's own position is always precisely where the letter it's revealing actually is
+type LensPointKind = "entrance" | "letter" | "settle" | "descend" | "exit";
 
+interface LensPoint {
+  t: number;
+  left: number;
+  top: string;
+  opacity: number;
+  scale: number;
+  rotate: number;
+  kind: LensPointKind;
+}
+
+function buildLensPoints(): LensPoint[] {
+  const points: LensPoint[] = [
+    { t: 0, left: -8, top: LINE1_TOP, opacity: 0, scale: 0.5, rotate: -8, kind: "entrance" },
+  ];
+
+  DISCOVER_LETTERS.forEach((_, i) => {
+    points.push({
+      t: i * FORWARD_STAGGER + LETTER_POP_DUR * LETTER_POP_PEAK,
+      left: 6 + 88 * (i / DISCOVER_LAST),
+      top: LINE1_TOP,
+      opacity: 1,
+      scale: 1,
+      rotate: 3,
+      kind: "letter",
+    });
+  });
+
+  points.push({ t: T_FORWARD_END, left: 94, top: LINE1_TOP, opacity: 1, scale: 1, rotate: -4, kind: "settle" });
+  points.push({
+    t: BACKWARD_START,
+    left: 94,
+    top: LINE2_TOP,
+    opacity: 1,
+    scale: 1.12,
+    rotate: 10,
+    kind: "descend",
+  });
+
+  WORD_LETTERS.forEach((_, i) => {
+    const k = WORD_LAST - i; // reveal order: rightmost letter first
+    points.push({
+      t: BACKWARD_START + k * BACKWARD_STAGGER + LETTER_POP_DUR * LETTER_POP_PEAK,
+      left: 94 - 96 * (k / WORD_LAST),
+      top: LINE2_TOP,
+      opacity: 1,
+      scale: 1,
+      rotate: -3,
+      kind: "letter",
+    });
+  });
+
+  points.push({ t: T_BACKWARD_END, left: -2, top: LINE2_TOP, opacity: 1, scale: 1, rotate: -3, kind: "settle" });
+  points.push({ t: TOTAL_DURATION, left: -10, top: LINE2_TOP, opacity: 0, scale: 0.6, rotate: 3, kind: "exit" });
+
+  return points;
+}
+
+const LENS_POINTS = buildLensPoints();
+const LENS_TIMES = LENS_POINTS.map((p) => p.t / TOTAL_DURATION);
+const LENS_LEFT = LENS_POINTS.map((p) => `${p.left}%`);
+const LENS_TOP = LENS_POINTS.map((p) => p.top);
+const LENS_OPACITY = LENS_POINTS.map((p) => p.opacity);
+const LENS_SCALE = LENS_POINTS.map((p) => p.scale);
+const LENS_ROTATE = LENS_POINTS.map((p) => p.rotate);
+
+// dense letter-to-letter hops stay linear so the many closely-packed keyframes read as one
+// continuous glide rather than decelerating and re-accelerating at every single letter;
+// the few deliberate "beats" (entrance, descend, settle, exit) keep an eased, weighted feel
+function segmentEase(a: LensPointKind, b: LensPointKind): Easing {
+  if (a === "entrance") return "easeOut";
+  if (b === "exit") return "easeOut";
+  if (a === "letter" && b === "letter") return "linear";
+  return "easeInOut";
+}
+
+const LENS_EASE: Easing[] = LENS_POINTS.slice(1).map((p, i) => segmentEase(LENS_POINTS[i].kind, p.kind));
+
+function LensLayer() {
   return (
     <>
       {/* trailing echo — a faint ghost lagging behind the glass, selling real motion on the fast passes */}
@@ -111,19 +184,14 @@ function LensLayer() {
         aria-hidden
         className="pointer-events-none absolute z-[9] -mt-[0.8em] h-[1.6em] w-[1.6em] rounded-full border border-brand-300/40 blur-[2px]"
         style={{ marginLeft: "-0.8em" }}
-        initial={{ left: left[0], top: top[0], opacity: 0, scale: 0.5 }}
+        initial={{ left: LENS_LEFT[0], top: LENS_TOP[0], opacity: 0, scale: 0.5 }}
         animate={{
-          left,
-          top,
-          opacity: [0, 0.35, 0.35, 0.35, 0.35, 0],
-          scale: [0.5, 0.9, 0.9, 1.05, 0.9, 0.55],
+          left: LENS_LEFT,
+          top: LENS_TOP,
+          opacity: LENS_OPACITY.map((o) => o * 0.4),
+          scale: LENS_SCALE.map((s) => s * 0.85),
         }}
-        transition={{
-          duration: TOTAL_DURATION,
-          times: lensTimes,
-          delay: 0.07,
-          ease: [0.65, 0, 0.15, 1],
-        }}
+        transition={{ duration: TOTAL_DURATION, times: LENS_TIMES, delay: 0.07, ease: LENS_EASE }}
       />
 
       {/* the magnifying glass — sweeps left to right unveiling "Discover", drops to the next line, then glides
@@ -132,19 +200,9 @@ function LensLayer() {
         aria-hidden
         className="pointer-events-none absolute z-10 -mt-[0.8em] h-[1.6em] w-[1.6em]"
         style={{ marginLeft: "-0.8em" }}
-        initial={{ left: left[0], top: top[0], opacity: 0, scale: 0.5, rotate: -8 }}
-        animate={{
-          left,
-          top,
-          opacity: [0, 1, 1, 1, 1, 0],
-          scale: [0.5, 1, 1, 1.12, 1, 0.6],
-          rotate: [-8, 4, -4, 10, -6, 10],
-        }}
-        transition={{
-          duration: TOTAL_DURATION,
-          times: lensTimes,
-          ease: ["easeOut", [0.45, 0, 0.55, 1], "easeInOut", [0.45, 0, 0.55, 1], "easeIn"],
-        }}
+        initial={{ left: LENS_LEFT[0], top: LENS_TOP[0], opacity: 0, scale: 0.5, rotate: -8 }}
+        animate={{ left: LENS_LEFT, top: LENS_TOP, opacity: LENS_OPACITY, scale: LENS_SCALE, rotate: LENS_ROTATE }}
+        transition={{ duration: TOTAL_DURATION, times: LENS_TIMES, ease: LENS_EASE }}
       >
         <span className="relative block h-full w-full rounded-full border-2 border-brand-400/80 bg-gradient-to-br from-white/25 via-white/5 to-transparent shadow-[0_4px_18px_rgba(176,19,94,0.45)] backdrop-blur-[1px]">
           <span className="absolute inset-[18%] rounded-full bg-gradient-to-br from-white/55 via-white/10 to-transparent" />
@@ -168,15 +226,13 @@ function LensLayer() {
   );
 }
 
+const IDLE_WAVE_DUR = 1.8;
+const IDLE_WAVE_STAGGER = 0.09;
+
 export default function AnimatedHeading() {
   const { theme } = useTheme();
   const stops = theme === "dark" ? STOPS_DARK : STOPS_LIGHT;
   const [settled, setSettled] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setSettled(true), T_BACKWARD_END * 1000);
-    return () => clearTimeout(t);
-  }, []);
 
   return (
     <h1 className="mt-7 font-display text-6xl font-semibold leading-[1.03] tracking-tight text-ink sm:text-7xl lg:text-8xl">
@@ -209,13 +265,14 @@ export default function AnimatedHeading() {
                     ? { opacity: 1, y: [0, -9, 0], rotate: [0, i % 2 === 0 ? 2 : -2, 0], scale: 1, filter: "blur(0px)" }
                     : letterPopAnimate
                 }
+                onAnimationComplete={i === 0 ? () => setSettled(true) : undefined}
                 transition={
                   settled
                     ? {
-                        duration: 1.6 + (i % 3) * 0.15,
+                        duration: IDLE_WAVE_DUR,
                         repeat: Infinity,
                         ease: "easeInOut",
-                        delay: i * 0.09,
+                        delay: i * IDLE_WAVE_STAGGER,
                       }
                     : letterPopTransition(delay)
                 }

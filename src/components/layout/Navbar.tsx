@@ -33,15 +33,17 @@ export default function Navbar() {
   }, []);
 
   return (
-    <motion.header
-      initial={{ y: -28, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+    <header
       className={cn(
         "sticky top-0 z-[1500] transition-all duration-300",
         scrolled ? "glass-panel shadow-[0_8px_30px_rgba(176,19,94,0.08)]" : "bg-transparent"
       )}
     >
+      <motion.div
+        initial={{ y: -28, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
         <Link href="/" className="group flex items-center gap-2">
           <motion.span
@@ -139,6 +141,7 @@ export default function Navbar() {
           </motion.button>
         </div>
       </nav>
+      </motion.div>
 
       <AnimatePresence>
         {open && (
@@ -186,6 +189,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }

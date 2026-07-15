@@ -13,14 +13,30 @@ const icons: Record<DestinationCategory, LucideIcon> = {
 export default function DestinationArt({
   gradient,
   category,
+  images,
   className,
 }: {
   gradient: [string, string];
   category: DestinationCategory;
+  images?: string[];
   Icon?: never;
   className?: string;
 }) {
   const Icon = icons[category];
+  const photo = images?.[0];
+
+  if (photo) {
+    return (
+      <div
+        className={className}
+        style={{ background: `linear-gradient(135deg, ${gradient[0]}, ${gradient[1]})` }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- external, unpredictable hosts; see note in destinations.ts */}
+        <img src={photo} alt="" loading="lazy" className="h-full w-full object-cover" />
+      </div>
+    );
+  }
+
   return (
     <div
       className={className}

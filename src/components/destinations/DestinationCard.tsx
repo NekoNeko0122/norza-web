@@ -20,6 +20,7 @@ export default function DestinationCard({ destination }: { destination: Destinat
         <DestinationArt
           gradient={destination.gradient}
           category={destination.category}
+          images={destination.images}
           className="h-full w-full transition-transform duration-500 group-hover:scale-110"
         />
         <span className="absolute left-3 top-3 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-brand-700 backdrop-blur">
