@@ -1,6 +1,5 @@
 import { destinations, type Destination } from "@/data/destinations";
 import {
-  ORIGIN_POINTS,
   VEHICLE_OPTIONS,
   INTEREST_OPTIONS,
   CATEGORY_VISIT_HOURS,
@@ -20,7 +19,12 @@ export type Pace = "relaxed" | "packed";
 export interface TripInput {
   days: number;
   pax: number;
-  originId: string;
+  originLabel: string;
+  originLat: number;
+  originLng: number;
+  /** false when the origin has no road/bridge connection to Luzon at all
+   * (different island region, or Batanes) */
+  originRoadConnected: boolean;
   vehicleId: VehicleType;
   interestIds: string[];
   difficulty: DifficultyTolerance;
@@ -44,14 +48,31 @@ export interface ItineraryDay {
 
 export interface TripPlan {
   originLabel: string;
+  /** where the driving leg actually starts from — same as originLabel
+   * unless requiresFlightOrFerry, in which case it's "Manila/Clark" */
+  groundOriginLabel: string;
   vehicleLabel: string;
+  /** the on-the-ground driving leg only — from Manila/Clark when
+   * requiresFlightOrFerry is true, since the origin itself isn't driveable */
   travelToNorzagarayMinutes: number;
+  originDistanceKm: number;
+  requiresFlightOrFerry: boolean;
+  longDistanceNote?: string;
   days: ItineraryDay[];
   bonusSuggestions: Destination[];
   packingList: string[];
   reminders: string[];
   overallDifficulty: DifficultyTolerance;
 }
+
+/** distance past which a straight-line haversine estimate stops being a
+ * believable "drive time" (a very long multi-day Luzon trip) */
+const LONG_DISTANCE_KM_THRESHOLD = 300;
+
+// used as the effective start of the ground leg when the real origin has no
+// road connection to Luzon — most flights/ferries into Luzon land near here
+const MANILA_COORD = { lat: 14.5995, lng: 120.9842 };
+const MANILA_LABEL = "Manila/Clark";
 
 const DIFFICULTY_RANK: Record<DifficultyTolerance, number> = { easy: 0, moderate: 1, challenging: 2 };
 
@@ -69,6 +90,20 @@ function travelMinutesBetween(a: { lat: number; lng: number }, b: { lat: number;
   const roadKm = haversineKm(a, b) * 1.35; // road fudge factor
   const avgSpeedKmh = 24 / speedFactor;
   return Math.round((roadKm / avgSpeedKmh) * 60 + 8); // parking buffer
+}
+
+/** longer inter-city trips are relatively more direct (highways) and faster
+ * on average than the short, winding local roads travelMinutesBetween models */
+function longDistanceTravelMinutes(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+  speedFactor: number
+) {
+  const straightKm = haversineKm(a, b);
+  const roadKm = straightKm * 1.25;
+  const avgSpeedKmh = 45 / speedFactor;
+  const minutes = Math.round((roadKm / avgSpeedKmh) * 60 + 15);
+  return { minutes, km: Math.round(straightKm) };
 }
 
 function visitHoursFor(d: Destination) {
@@ -101,12 +136,31 @@ function scoreDestination(d: Destination, interestIds: string[]): number {
 }
 
 export function generateTripPlan(input: TripInput): TripPlan {
-  const origin = ORIGIN_POINTS.find((o) => o.id === input.originId) ?? ORIGIN_POINTS[ORIGIN_POINTS.length - 1];
   const vehicle = VEHICLE_OPTIONS.find((v) => v.id === input.vehicleId) ?? VEHICLE_OPTIONS[0];
+  const originCoord = { lat: input.originLat, lng: input.originLng };
+  const requiresFlightOrFerry = !input.originRoadConnected;
 
-  const travelToNorzagarayMinutes = Math.round(
-    origin.baseTravelMinutes * vehicle.speedFactor + (vehicle.transferBufferMinutes ?? 0)
+  // when there's no road connection at all, the "drive time" is computed
+  // for the ground leg from Manila/Clark onward, not the impossible direct
+  // route — a straight-line estimate across open water isn't a real number
+  const groundOriginCoord = requiresFlightOrFerry ? MANILA_COORD : originCoord;
+  const groundOriginLabel = requiresFlightOrFerry ? MANILA_LABEL : input.originLabel;
+
+  const { minutes: baseTravelMinutes, km: groundDistanceKm } = longDistanceTravelMinutes(
+    groundOriginCoord,
+    NORZAGARAY_CENTER_COORD,
+    vehicle.speedFactor
   );
+  const travelToNorzagarayMinutes = baseTravelMinutes + (vehicle.transferBufferMinutes ?? 0);
+  const originDistanceKm = requiresFlightOrFerry
+    ? Math.round(haversineKm(originCoord, NORZAGARAY_CENTER_COORD))
+    : groundDistanceKm;
+
+  const longDistanceNote = requiresFlightOrFerry
+    ? `${input.originLabel} has no road or bridge connection to Norzagaray — you'll need to fly or take a ferry into Manila or Clark first. The travel time and suggested departure below are just for the on-the-ground leg from there.`
+    : groundDistanceKm > LONG_DISTANCE_KM_THRESHOLD
+      ? `${groundDistanceKm} km is a long haul by road — for a trip this far, it's usually faster to fly or bus into Manila or Clark first, then continue to Norzagaray from there. The time below assumes driving the whole way.`
+      : undefined;
 
   const allowedDifficulty = new Set(
     (["easy", "moderate", "challenging"] as DifficultyTolerance[]).filter(
@@ -207,9 +261,13 @@ export function generateTripPlan(input: TripInput): TripPlan {
   );
 
   return {
-    originLabel: origin.label,
+    originLabel: input.originLabel,
+    groundOriginLabel,
     vehicleLabel: vehicle.label,
     travelToNorzagarayMinutes,
+    originDistanceKm,
+    requiresFlightOrFerry,
+    longDistanceNote,
     days,
     bonusSuggestions,
     packingList,

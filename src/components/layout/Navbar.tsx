@@ -11,6 +11,7 @@ import ThemeToggle from "@/components/theme/ThemeToggle";
 const links = [
   { href: "/", label: "Home" },
   { href: "/destinations", label: "Destinations" },
+  { href: "/food", label: "Food" },
   { href: "/about", label: "About Norzagaray" },
   { href: "/team", label: "Meet the Team" },
 ];

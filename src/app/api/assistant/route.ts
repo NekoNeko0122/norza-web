@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { destinations, categoryMeta } from "@/data/destinations";
-import { BASE_PACKING_LIST, GENERAL_REMINDERS, ORIGIN_POINTS } from "@/data/tripPlanning";
+import { BASE_PACKING_LIST, GENERAL_REMINDERS } from "@/data/tripPlanning";
 
 export const runtime = "nodejs";
 
@@ -21,10 +21,6 @@ function buildSystemPrompt() {
     })
     .join("\n");
 
-  const travelLines = ORIGIN_POINTS.map(
-    (o) => `- From ${o.label}: ~${o.baseTravelMinutes} min by private car (${o.distanceKm} km)`
-  ).join("\n");
-
   return `You are Andrew, a friendly and knowledgeable local guide for "Discover Norzagaray", a tourism website for Norzagaray, Bulacan, Philippines.
 
 Answer questions about visiting Norzagaray using ONLY the destination facts listed below. Never invent entrance fees, hours, or details that aren't given. If a question is about Norzagaray but the answer isn't in the facts below, or the question is about something else entirely (unrelated to this website), say plainly that you don't have that information here rather than guessing, and gently steer back to what you can help with.
@@ -38,8 +34,7 @@ Many visitors are Filipino and may write in Tagalog or Taglish (mixed Tagalog/En
 DESTINATIONS:
 ${destinationLines}
 
-TYPICAL TRAVEL TIME (private car):
-${travelLines}
+For travel time from a specific city, point people to the trip planner (/plan-your-trip), which calculates a real distance-based estimate for any Philippine city they enter. As a rough guide: about 30 minutes from San Jose del Monte, and up to 2 hours from Metro Manila, by private car.
 
 GENERAL PACKING TIPS: ${BASE_PACKING_LIST.join("; ")}
 

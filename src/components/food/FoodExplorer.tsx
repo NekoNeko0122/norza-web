@@ -4,13 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { Compass } from "lucide-react";
-import { destinations as allDestinations, type Destination, type DestinationCategory } from "@/data/destinations";
-import FilterBar, { type ViewMode } from "./FilterBar";
-import DestinationCard from "./DestinationCard";
-import DestinationListItem from "./DestinationListItem";
+import { foodItems, type FoodItem, type FoodCategory } from "@/data/food";
+import FoodFilterBar, { type ViewMode } from "./FoodFilterBar";
+import FoodCard from "./FoodCard";
+import FoodListItem from "./FoodListItem";
 import Pagination from "@/components/ui/Pagination";
 
-const DestinationMap = dynamic(() => import("./DestinationMap"), {
+const FoodMap = dynamic(() => import("./FoodMap"), {
   ssr: false,
   loading: () => (
     <div className="grid h-full w-full place-items-center bg-tint text-sm text-brand-500">
@@ -21,30 +21,28 @@ const DestinationMap = dynamic(() => import("./DestinationMap"), {
 
 const PAGE_SIZE = 5;
 
-export default function DestinationsExplorer() {
+export default function FoodExplorer() {
   const searchParams = useSearchParams();
-  const [view, setView] = useState<ViewMode>(
-    searchParams.get("view") === "map" ? "map" : "list"
-  );
+  const [view, setView] = useState<ViewMode>(searchParams.get("view") === "map" ? "map" : "list");
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
-  const [category, setCategory] = useState<DestinationCategory | "all">(
-    (searchParams.get("category") as DestinationCategory) ?? "all"
+  const [category, setCategory] = useState<FoodCategory | "all">(
+    (searchParams.get("category") as FoodCategory) ?? "all"
   );
   const [beyondGuidebook, setBeyondGuidebook] = useState(false);
-  const [selected, setSelected] = useState<Destination | null>(null);
+  const [selected, setSelected] = useState<FoodItem | null>(null);
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return allDestinations.filter((d) => {
-      if (beyondGuidebook) return !!d.beyondGuidebook;
-      if (d.beyondGuidebook) return false;
-      const matchesCategory = category === "all" || d.category === category;
+    return foodItems.filter((f) => {
+      if (beyondGuidebook) return !!f.beyondGuidebook;
+      if (f.beyondGuidebook) return false;
+      const matchesCategory = category === "all" || f.category === category;
       const matchesQuery =
         !q ||
-        d.name.toLowerCase().includes(q) ||
-        d.barangay.toLowerCase().includes(q) ||
-        d.tags.some((t) => t.includes(q));
+        f.name.toLowerCase().includes(q) ||
+        f.barangay.toLowerCase().includes(q) ||
+        f.tags.some((t) => t.includes(q));
       return matchesCategory && matchesQuery;
     });
   }, [query, category, beyondGuidebook]);
@@ -60,19 +58,20 @@ export default function DestinationsExplorer() {
     <div className="flex flex-col">
       <div className="mx-auto w-full max-w-7xl px-6 pt-10 sm:px-8">
         <span className="text-xs font-semibold uppercase tracking-wider text-brand-500">
-          Explore
+          Taste of Norzagaray
         </span>
         <h1 className="mt-2 font-display text-4xl font-semibold text-ink sm:text-5xl">
-          All Destinations
+          Food
         </h1>
         <p className="mt-3 max-w-xl text-ink-soft">
-          Toggle between list and map view. Pins in a deeper shade with a dashed
-          ring are community-registered spots not yet on Google Maps.
+          From riverside grills to market-fresh kakanin, here's what to eat
+          around Norzagaray, and where to find it. Toggle to the map to see
+          exactly where each spot is.
         </p>
       </div>
 
       <div className="mt-8">
-        <FilterBar
+        <FoodFilterBar
           view={view}
           onViewChange={setView}
           query={query}
@@ -95,12 +94,12 @@ export default function DestinationsExplorer() {
                   Beyond the Guidebooks is just getting started
                 </p>
                 <p className="mt-1 text-sm text-ink-faint">
-                  We're out scouting uncharted spots around Norzagaray to add here. Check back soon.
+                  We're out scouting uncharted food spots around Norzagaray to add here. Check back soon.
                 </p>
               </>
             ) : (
               <>
-                <p className="font-display text-lg font-semibold text-ink">No destinations found</p>
+                <p className="font-display text-lg font-semibold text-ink">No food found</p>
                 <p className="mt-1 text-sm text-ink-faint">Try a different search or category.</p>
               </>
             )}
@@ -108,8 +107,8 @@ export default function DestinationsExplorer() {
         ) : view === "list" ? (
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {paginated.map((d) => (
-                <DestinationCard key={d.id} destination={d} />
+              {paginated.map((f) => (
+                <FoodCard key={f.id} food={f} />
               ))}
             </div>
             <Pagination page={page} totalPages={totalPages} onChange={setPage} />
@@ -117,21 +116,17 @@ export default function DestinationsExplorer() {
         ) : (
           <div className="grid gap-5 lg:grid-cols-[340px_1fr]">
             <div className="order-2 max-h-[32rem] space-y-1.5 overflow-y-auto rounded-3xl border border-edge bg-surface p-3 lg:order-1 lg:max-h-[38rem]">
-              {filtered.map((d) => (
-                <DestinationListItem
-                  key={d.id}
-                  destination={d}
-                  active={selected?.id === d.id}
-                  onSelect={() => setSelected(d)}
+              {filtered.map((f) => (
+                <FoodListItem
+                  key={f.id}
+                  food={f}
+                  active={selected?.id === f.id}
+                  onSelect={() => f.coordinates && setSelected(f)}
                 />
               ))}
             </div>
             <div className="isolate relative order-1 h-[26rem] lg:order-2 lg:h-[38rem]">
-              <DestinationMap
-                destinations={filtered}
-                selected={selected}
-                onSelect={setSelected}
-              />
+              <FoodMap items={filtered} selected={selected} onSelect={setSelected} />
             </div>
           </div>
         )}

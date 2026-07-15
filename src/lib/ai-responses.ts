@@ -1,5 +1,5 @@
 import { destinations, categoryMeta, type Destination } from "@/data/destinations";
-import { BASE_PACKING_LIST, CONDITIONAL_PACKING, GENERAL_REMINDERS, ORIGIN_POINTS } from "@/data/tripPlanning";
+import { BASE_PACKING_LIST, CONDITIONAL_PACKING, GENERAL_REMINDERS } from "@/data/tripPlanning";
 
 export interface PremadeQuestion {
   id: string;
@@ -211,11 +211,7 @@ export function generateAssistantReply(rawQuery: string): string {
     query.includes("gaano katagal") ||
     query.includes("gaano kalayo")
   ) {
-    const originHit = ORIGIN_POINTS.find((o) => query.includes(o.label.toLowerCase().split(" ")[0].replace(/[^a-z]/g, "")));
-    if (originHit) {
-      return `From ${originHit.label}, it's roughly ${Math.round(originHit.baseTravelMinutes / 5) * 5} minutes by private car (about ${originHit.distanceKm} km), longer by public transport. Use the trip planner (/plan-your-trip) for an estimate based on your exact starting point and ride.`;
-    }
-    return "Travel time depends on where you're coming from: anywhere from 30 minutes (San Jose del Monte) to 2 hours (Metro Manila) by private car. Try the trip planner (/plan-your-trip) and tell it your starting point for a precise estimate.";
+    return "Travel time depends on where you're coming from: anywhere from 30 minutes (San Jose del Monte) to 2 hours (Metro Manila) by private car. Try the trip planner (/plan-your-trip) and enter your city for a precise, distance-based estimate.";
   }
 
   const directMatches = findByKeyword(query);

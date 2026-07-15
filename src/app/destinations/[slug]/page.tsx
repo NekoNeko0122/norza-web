@@ -19,9 +19,11 @@ import {
 import { destinations, getDestinationBySlug, categoryMeta } from "@/data/destinations";
 import DestinationArt from "@/components/ui/DestinationArt";
 import RatingStars from "@/components/ui/RatingStars";
+import GoogleReviewsSection from "@/components/ui/GoogleReviewsSection";
 import DestinationCard from "@/components/destinations/DestinationCard";
 import MiniMap from "@/components/destinations/detail/MiniMapClient";
-import { averageRating, googleMapsDirectionsUrl, wazeUrl } from "@/lib/utils";
+import { getPlaceReviews } from "@/lib/googlePlaces";
+import { googleMapsDirectionsUrl, wazeUrl } from "@/lib/utils";
 
 export function generateStaticParams() {
   return destinations.map((d) => ({ slug: d.slug }));
@@ -50,7 +52,12 @@ export default async function DestinationDetailPage({
   const destination = getDestinationBySlug(slug);
   if (!destination) notFound();
 
-  const rating = averageRating(destination.reviews);
+  const googleData = destination.placeId ? await getPlaceReviews(destination.placeId) : null;
+  const rating = googleData?.rating ?? 0;
+  const googlePhotos = (googleData?.photos ?? []).map(
+    (p) => `/api/place-photo?name=${encodeURIComponent(p.name)}&w=1600`
+  );
+  const heroImages = googlePhotos.length > 0 ? googlePhotos : destination.images;
   const related = destinations
     .filter((d) => d.id !== destination.id && d.category === destination.category)
     .slice(0, 3);
@@ -62,7 +69,7 @@ export default async function DestinationDetailPage({
         <DestinationArt
           gradient={destination.gradient}
           category={destination.category}
-          images={destination.images}
+          images={heroImages}
           className="h-full w-full"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-plum-950/85 via-plum-950/20 to-transparent" />
@@ -96,7 +103,9 @@ export default async function DestinationDetailPage({
               <span className="flex items-center gap-1.5">
                 <RatingStars rating={rating} size={14} />
                 <span className="font-semibold">{rating}</span>
-                <span className="text-white/60">({destination.reviews?.length} reviews)</span>
+                <span className="text-white/60">
+                  ({googleData?.userRatingCount ?? 0} on Google)
+                </span>
               </span>
             )}
           </div>
@@ -127,32 +136,37 @@ export default async function DestinationDetailPage({
             <p className="mt-3 leading-relaxed text-ink-soft">{destination.description}</p>
           </section>
 
-          <section>
-            <h2 className="font-display text-2xl font-semibold text-ink">Accessibility</h2>
-            <ul className="mt-4 space-y-2.5">
-              {destination.accessibility.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-ink-soft">
-                  <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-brand-500" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </section>
+          {destination.accessibility && destination.accessibility.length > 0 && (
+            <section>
+              <h2 className="font-display text-2xl font-semibold text-ink">Accessibility</h2>
+              <ul className="mt-4 space-y-2.5">
+                {destination.accessibility.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-ink-soft">
+                    <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-brand-500" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <div className="grid gap-8 sm:grid-cols-2">
-            <section>
-              <h3 className="font-display text-lg font-semibold text-ink">Activities</h3>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {destination.activities.map((a) => (
-                  <span
-                    key={a}
-                    className="rounded-full bg-tint px-3 py-1.5 text-xs font-medium text-brand-700 dark:text-brand-300"
-                  >
-                    {a}
-                  </span>
-                ))}
-              </div>
-            </section>
+            {destination.activities && destination.activities.length > 0 && (
+              <section>
+                <h3 className="font-display text-lg font-semibold text-ink">Activities</h3>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {destination.activities.map((a) => (
+                    <span
+                      key={a}
+                      className="rounded-full bg-tint px-3 py-1.5 text-xs font-medium text-brand-700 dark:text-brand-300"
+                    >
+                      {a}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+            {destination.amenities && destination.amenities.length > 0 && (
             <section>
               <h3 className="font-display text-lg font-semibold text-ink">Amenities</h3>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -166,41 +180,10 @@ export default async function DestinationDetailPage({
                 ))}
               </div>
             </section>
+            )}
           </div>
 
-          {/* Reviews */}
-          <section>
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-2xl font-semibold text-ink">
-                Traveler Reviews
-              </h2>
-              {rating > 0 && (
-                <span className="flex items-center gap-1.5 text-sm">
-                  <RatingStars rating={rating} />
-                  <span className="font-semibold text-ink">{rating} / 5</span>
-                </span>
-              )}
-            </div>
-
-            {destination.reviews && destination.reviews.length > 0 ? (
-              <div className="mt-5 space-y-4">
-                {destination.reviews.map((r) => (
-                  <div key={r.author + r.date} className="rounded-2xl border border-edge bg-surface p-5">
-                    <div className="flex items-center justify-between">
-                      <p className="font-semibold text-ink">{r.author}</p>
-                      <RatingStars rating={r.rating} size={13} />
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed text-ink-soft">{r.comment}</p>
-                    {r.date && <p className="mt-2 text-xs text-ink-faint">{r.date}</p>}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-4 rounded-2xl border border-dashed border-brand-200 bg-tint/50 p-6 text-center text-sm text-ink-faint">
-                No reviews yet. Be the first to share your experience!
-              </p>
-            )}
-          </section>
+          <GoogleReviewsSection placeId={destination.placeId} fallbackMapsUrl={destination.googleMapsUrl} />
         </div>
 
         {/* Sidebar */}

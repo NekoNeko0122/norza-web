@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "sync:places": "node scripts/sync-places.mjs && node scripts/transform-places.mjs && node scripts/backfill-photos.mjs && node scripts/clean-places.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

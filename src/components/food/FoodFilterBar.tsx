@@ -1,13 +1,13 @@
 "use client";
 
 import { Search, X, Compass } from "lucide-react";
+import { foodCategoryMeta, type FoodCategory } from "@/data/food";
 import { cn } from "@/lib/utils";
-import { categoryMeta, type DestinationCategory } from "@/data/destinations";
 import ViewToggle, { type ViewMode } from "@/components/ui/ViewToggle";
 
 export type { ViewMode };
 
-export default function FilterBar({
+export default function FoodFilterBar({
   view,
   onViewChange,
   query,
@@ -22,13 +22,13 @@ export default function FilterBar({
   onViewChange: (v: ViewMode) => void;
   query: string;
   onQueryChange: (q: string) => void;
-  category: DestinationCategory | "all";
-  onCategoryChange: (c: DestinationCategory | "all") => void;
+  category: FoodCategory | "all";
+  onCategoryChange: (c: FoodCategory | "all") => void;
   beyondGuidebook: boolean;
   onBeyondGuidebookChange: (v: boolean) => void;
   resultCount: number;
 }) {
-  const categories: (DestinationCategory | "all")[] = ["all", ...(Object.keys(categoryMeta) as DestinationCategory[])];
+  const categories: (FoodCategory | "all")[] = ["all", ...(Object.keys(foodCategoryMeta) as FoodCategory[])];
 
   return (
     <div className="sticky top-[73px] z-30 border-b border-edge bg-surface/85 px-6 py-4 backdrop-blur-md sm:px-8">
@@ -39,7 +39,7 @@ export default function FilterBar({
             <input
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
-              placeholder="Search destinations..."
+              placeholder="Search food, delicacies, dishes..."
               className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink-faint"
             />
             {query && (
@@ -48,10 +48,9 @@ export default function FilterBar({
               </button>
             )}
           </div>
-
           <div className="flex items-center justify-between gap-3 sm:justify-end">
             <span className="text-xs font-medium text-ink-faint">
-              {resultCount} spot{resultCount !== 1 ? "s" : ""}
+              {resultCount} item{resultCount !== 1 ? "s" : ""}
             </span>
             <ViewToggle view={view} onChange={onViewChange} />
           </div>
@@ -71,7 +70,7 @@ export default function FilterBar({
                 beyondGuidebook && "pointer-events-none opacity-40"
               )}
             >
-              {c === "all" ? "All" : categoryMeta[c].label}
+              {c === "all" ? "All" : foodCategoryMeta[c].label}
             </button>
           ))}
 

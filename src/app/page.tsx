@@ -3,6 +3,7 @@ import ExploreSection from "@/components/home/ExploreSection";
 import StatsStrip from "@/components/home/StatsStrip";
 import CategoryNav from "@/components/home/CategoryNav";
 import FeaturedDestinations from "@/components/home/FeaturedDestinations";
+import FoodSection from "@/components/home/FoodSection";
 import ProponentsSection from "@/components/home/ProponentsSection";
 import ContactSection from "@/components/home/ContactSection";
 
@@ -16,6 +17,7 @@ export default function Home() {
         <CategoryNav />
       </div>
       <FeaturedDestinations />
+      <FoodSection />
       <ProponentsSection />
       <ContactSection />
     </div>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Minus, Plus, Check, Sparkles, ArrowLeft, ArrowRight } from "lucide-react";
+import { Minus, Plus, Check, Sparkles, ArrowLeft, ArrowRight, MapPin, Loader2, AlertCircle } from "lucide-react";
 import {
-  ORIGIN_POINTS,
+  ORIGIN_SUGGESTIONS,
   VEHICLE_OPTIONS,
   INTEREST_OPTIONS,
   DIFFICULTY_LEVELS,
@@ -15,22 +15,93 @@ import { generateTripPlan } from "@/lib/itinerary";
 import { cn } from "@/lib/utils";
 import TripResults from "./TripResults";
 
+interface CitySuggestion {
+  placeId: string;
+  mainText: string;
+  secondaryText: string;
+}
+
 const STEPS = ["Trip Basics", "Interests", "Preferences", "Your Itinerary"];
 
 const DEFAULT_INPUT: TripInput = {
   days: 1,
   pax: 2,
-  originId: "sjdm",
+  originLabel: "",
+  originLat: 0,
+  originLng: 0,
+  originRoadConnected: true,
   vehicleId: "private-car",
   interestIds: [],
   difficulty: "moderate",
   pace: "relaxed",
 };
 
+type OriginStatus = "idle" | "checking" | "resolved" | "error";
+
 export default function TripPlannerWizard() {
   const [step, setStep] = useState(0);
   const [input, setInput] = useState<TripInput>(DEFAULT_INPUT);
   const [plan, setPlan] = useState<TripPlan | null>(null);
+
+  const [originQuery, setOriginQuery] = useState("");
+  const [originStatus, setOriginStatus] = useState<OriginStatus>("idle");
+  const [originError, setOriginError] = useState("");
+  const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (originStatus === "resolved" || !originQuery.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/autocomplete-city?input=${encodeURIComponent(originQuery)}`);
+        const data = await res.json();
+        setSuggestions(data.suggestions ?? []);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 250);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [originQuery, originStatus]);
+
+  async function selectSuggestion(s: CitySuggestion) {
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setOriginQuery(`${s.mainText}, ${s.secondaryText}`);
+    setOriginStatus("checking");
+    setOriginError("");
+    try {
+      const res = await fetch("/api/resolve-origin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ placeId: s.placeId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOriginStatus("error");
+        setOriginError(data.message ?? "We couldn't recognize that city. Please try again.");
+        return;
+      }
+      setInput((p) => ({
+        ...p,
+        originLabel: data.label,
+        originLat: data.lat,
+        originLng: data.lng,
+        originRoadConnected: data.roadConnected,
+      }));
+      setOriginQuery(data.label);
+      setOriginStatus("resolved");
+    } catch {
+      setOriginStatus("error");
+      setOriginError("Network error while checking that city. Please try again.");
+    }
+  }
 
   function toggleInterest(id: string) {
     setInput((prev) => ({
@@ -39,6 +110,45 @@ export default function TripPlannerWizard() {
         ? prev.interestIds.filter((i) => i !== id)
         : [...prev.interestIds, id],
     }));
+  }
+
+  async function resolveOrigin(city: string) {
+    if (!city.trim()) return;
+    setOriginStatus("checking");
+    setOriginError("");
+    try {
+      const res = await fetch("/api/resolve-origin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ city }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOriginStatus("error");
+        setOriginError(data.message ?? "We couldn't recognize that city. Please try again.");
+        return;
+      }
+      setInput((p) => ({
+        ...p,
+        originLabel: data.label,
+        originLat: data.lat,
+        originLng: data.lng,
+        originRoadConnected: data.roadConnected,
+      }));
+      setOriginQuery(data.label);
+      setOriginStatus("resolved");
+    } catch {
+      setOriginStatus("error");
+      setOriginError("Network error while checking that city. Please try again.");
+    }
+  }
+
+  function handleOriginChange(value: string) {
+    setOriginQuery(value);
+    setOriginStatus("idle");
+    setOriginError("");
+    setShowSuggestions(true);
+    setInput((p) => ({ ...p, originLabel: "", originLat: 0, originLng: 0 }));
   }
 
   function handleGenerate() {
@@ -50,6 +160,9 @@ export default function TripPlannerWizard() {
   function startOver() {
     setPlan(null);
     setInput(DEFAULT_INPUT);
+    setOriginQuery("");
+    setOriginStatus("idle");
+    setOriginError("");
     setStep(0);
   }
 
@@ -99,15 +212,81 @@ export default function TripPlannerWizard() {
             </div>
 
             <FieldLabel>Where are you coming from?</FieldLabel>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {ORIGIN_POINTS.map((o) => (
-                <SelectCard
-                  key={o.id}
-                  active={input.originId === o.id}
-                  onClick={() => setInput((p) => ({ ...p, originId: o.id }))}
-                  title={o.label}
-                  subtitle={`~${o.baseTravelMinutes} min by car`}
+            <div className="relative">
+              <div
+                className={cn(
+                  "flex items-center gap-2 rounded-2xl border bg-tint/30 px-4 py-3 transition-colors",
+                  originStatus === "error"
+                    ? "border-red-400"
+                    : originStatus === "resolved"
+                      ? "border-emerald-400"
+                      : "border-edge"
+                )}
+              >
+                <MapPin size={16} className="shrink-0 text-brand-400" />
+                <input
+                  value={originQuery}
+                  onChange={(e) => handleOriginChange(e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => {
+                    setShowSuggestions(false);
+                    if (originStatus === "idle") resolveOrigin(originQuery);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      setShowSuggestions(false);
+                      resolveOrigin(originQuery);
+                    }
+                  }}
+                  placeholder="Type any city or municipality in the Philippines..."
+                  className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink-faint"
+                  autoComplete="off"
                 />
+                {originStatus === "checking" && <Loader2 size={16} className="shrink-0 animate-spin text-ink-faint" />}
+                {originStatus === "resolved" && <Check size={16} className="shrink-0 text-emerald-500" />}
+              </div>
+
+              {showSuggestions && originStatus !== "resolved" && suggestions.length > 0 && (
+                <div className="absolute inset-x-0 top-full z-20 mt-1.5 overflow-hidden rounded-2xl border border-edge bg-surface shadow-xl shadow-brand-900/10">
+                  {suggestions.map((s) => (
+                    <button
+                      key={s.placeId}
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => selectSuggestion(s)}
+                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm transition-colors hover:bg-tint"
+                    >
+                      <MapPin size={14} className="shrink-0 text-brand-400" />
+                      <span className="min-w-0">
+                        <span className="block font-medium text-ink">{s.mainText}</span>
+                        <span className="block truncate text-xs text-ink-faint">{s.secondaryText}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {originStatus === "error" && (
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-500">
+                  <AlertCircle size={13} /> {originError}
+                </p>
+              )}
+            </div>
+
+            <div className="-mt-2 flex flex-wrap gap-1.5">
+              {ORIGIN_SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => {
+                    setOriginQuery(s);
+                    resolveOrigin(s);
+                  }}
+                  className="rounded-full border border-edge bg-surface px-3 py-1 text-xs font-medium text-ink-soft transition-colors hover:border-brand-300 hover:text-brand-600"
+                >
+                  {s}
+                </button>
               ))}
             </div>
 
@@ -124,7 +303,13 @@ export default function TripPlannerWizard() {
               ))}
             </div>
 
-            <NextButton onClick={() => setStep(1)} />
+            <NextButton
+              onClick={() => {
+                if (originStatus === "resolved") setStep(1);
+                else resolveOrigin(originQuery);
+              }}
+              disabled={originStatus === "checking" || !originQuery.trim()}
+            />
           </StepShell>
         )}
 
@@ -312,15 +497,16 @@ function SelectCard({
   );
 }
 
-function NextButton({ onClick }: { onClick: () => void }) {
+function NextButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
   return (
     <div className="flex justify-end pt-2">
       <motion.button
         type="button"
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.97 }}
+        whileHover={disabled ? undefined : { scale: 1.03 }}
+        whileTap={disabled ? undefined : { scale: 0.97 }}
         onClick={onClick}
-        className="inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3 text-sm font-semibold text-background"
+        disabled={disabled}
+        className="inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-50"
       >
         Next <ArrowRight size={16} />
       </motion.button>

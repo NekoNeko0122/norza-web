@@ -43,3 +43,6 @@ next-env.d.ts
 
 # claude code local settings
 .claude/
+
+# scripts/sync-places.mjs intermediate output — regenerate with npm run sync:places
+/scripts/places-raw-*.json

@@ -1,21 +1,15 @@
 import type { DestinationCategory } from "./destinations";
 
-export interface OriginPoint {
-  id: string;
-  label: string;
-  /** rough one-way drive time to Norzagaray by private car, in minutes (traffic varies) */
-  baseTravelMinutes: number;
-  distanceKm: number;
-}
-
-export const ORIGIN_POINTS: OriginPoint[] = [
-  { id: "manila", label: "Manila / Metro Manila (South & Central)", baseTravelMinutes: 120, distanceKm: 55 },
-  { id: "qc", label: "Quezon City", baseTravelMinutes: 90, distanceKm: 40 },
-  { id: "caloocan-novaliches", label: "Caloocan / Novaliches", baseTravelMinutes: 60, distanceKm: 25 },
-  { id: "sjdm", label: "San Jose del Monte, Bulacan", baseTravelMinutes: 30, distanceKm: 12 },
-  { id: "sta-maria-bocaue", label: "Sta. Maria / Marilao / Bocaue, Bulacan", baseTravelMinutes: 45, distanceKm: 20 },
-  { id: "malolos-baliwag", label: "Malolos / Baliwag, Bulacan", baseTravelMinutes: 60, distanceKm: 30 },
-  { id: "other", label: "Somewhere else / Not sure", baseTravelMinutes: 90, distanceKm: 45 },
+/** quick-pick suggestions for the "where are you coming from" city input —
+ * clicking one just fills and resolves the field, any PH city/municipality
+ * typed in directly works the same way via /api/resolve-origin */
+export const ORIGIN_SUGGESTIONS = [
+  "Manila",
+  "Quezon City",
+  "Caloocan",
+  "San Jose del Monte, Bulacan",
+  "Sta. Maria, Bulacan",
+  "Malolos, Bulacan",
 ];
 
 export type VehicleType = "private-car" | "motorcycle" | "van" | "public-transport";

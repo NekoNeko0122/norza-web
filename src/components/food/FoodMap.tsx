@@ -4,11 +4,11 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
 import Link from "next/link";
-import type { Destination } from "@/data/destinations";
-import { categoryMeta } from "@/data/destinations";
+import type { FoodItem } from "@/data/food";
+import { foodCategoryMeta } from "@/data/food";
 import { useTheme } from "@/components/theme/ThemeProvider";
-import MapMask from "./MapMask";
-import MapControls from "./MapControls";
+import MapMask from "@/components/destinations/MapMask";
+import MapControls from "@/components/destinations/MapControls";
 import {
   NORZAGARAY_BOUNDS,
   NORZAGARAY_MIN_ZOOM,
@@ -34,26 +34,27 @@ function pinIcon(color: string, verified: boolean) {
   });
 }
 
-function FlyToSelected({ target }: { target: Destination | null }) {
+function FlyToSelected({ target }: { target: FoodItem | null }) {
   const map = useMap();
   useEffect(() => {
-    if (target) {
+    if (target?.coordinates) {
       map.flyTo([target.coordinates.lat, target.coordinates.lng], 15, { duration: 0.8 });
     }
   }, [target, map]);
   return null;
 }
 
-export default function DestinationMap({
-  destinations,
+export default function FoodMap({
+  items,
   selected,
   onSelect,
 }: {
-  destinations: Destination[];
-  selected: Destination | null;
-  onSelect: (d: Destination) => void;
+  items: FoodItem[];
+  selected: FoodItem | null;
+  onSelect: (f: FoodItem) => void;
 }) {
   const { theme } = useTheme();
+  const pinned = items.filter((f) => f.coordinates);
 
   return (
     <MapContainer
@@ -78,22 +79,22 @@ export default function DestinationMap({
         outlineColor={theme === "dark" ? "#ff92c4" : "#d81f74"}
       />
       <FlyToSelected target={selected} />
-      {destinations.map((d) => (
+      {pinned.map((f) => (
         <Marker
-          key={d.id}
-          position={[d.coordinates.lat, d.coordinates.lng]}
-          icon={pinIcon(d.onGoogleMaps ? "#d81f74" : "#8a1050", d.coordinatesVerified)}
-          eventHandlers={{ click: () => onSelect(d) }}
+          key={f.id}
+          position={[f.coordinates!.lat, f.coordinates!.lng]}
+          icon={pinIcon(f.placeId ? "#d81f74" : "#8a1050", f.coordinatesVerified)}
+          eventHandlers={{ click: () => onSelect(f) }}
         >
           <Popup>
             <div className="p-3">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-500">
-                {categoryMeta[d.category].label}
+                {foodCategoryMeta[f.category].label}
               </p>
-              <p className="mt-1 font-display text-sm font-semibold text-ink">{d.name}</p>
-              <p className="mt-1 line-clamp-2 text-xs text-ink-soft">{d.shortDescription}</p>
+              <p className="mt-1 font-display text-sm font-semibold text-ink">{f.name}</p>
+              <p className="mt-1 line-clamp-2 text-xs text-ink-soft">{f.shortDescription}</p>
               <Link
-                href={`/destinations/${d.slug}`}
+                href={`/food/${f.slug}`}
                 className="mt-2 inline-block text-xs font-semibold text-brand-600 hover:underline"
               >
                 View details →

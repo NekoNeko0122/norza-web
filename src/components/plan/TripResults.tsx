@@ -58,7 +58,12 @@ export default function TripResults({
         </p>
 
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <SummaryStat icon={Car} label="Travel to Norzagaray" value={`~${hoursMinutes(plan.travelToNorzagarayMinutes)}`} />
+          <SummaryStat
+            icon={Car}
+            label={plan.requiresFlightOrFerry ? "Ground travel from Manila/Clark" : "Travel to Norzagaray"}
+            value={`~${hoursMinutes(plan.travelToNorzagarayMinutes)}`}
+            sub={plan.requiresFlightOrFerry ? `${plan.originDistanceKm} km total, flight/ferry required` : `${plan.originDistanceKm} km away`}
+          />
           <SummaryStat icon={MapPin} label="Stops Planned" value={`${plan.days.reduce((n, d) => n + d.stops.length, 0)}`} />
           <SummaryStat
             icon={Gauge}
@@ -67,6 +72,13 @@ export default function TripResults({
           />
           <SummaryStat icon={Clock} label="Days Planned" value={`${plan.days.length}`} />
         </div>
+
+        {plan.longDistanceNote && (
+          <p className="mt-6 flex items-start gap-2 rounded-2xl bg-white/10 p-4 text-xs leading-relaxed text-white/85">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+            {plan.longDistanceNote}
+          </p>
+        )}
       </div>
 
       {/* per-day itinerary */}
@@ -87,7 +99,7 @@ export default function TripResults({
           </div>
           {day.day === 1 && (
             <p className="mt-2 text-xs text-ink-soft">
-              Suggested departure around 6:30 AM from {plan.originLabel} to arrive with the whole day ahead.
+              Suggested departure around 6:30 AM from {plan.groundOriginLabel} to arrive with the whole day ahead.
             </p>
           )}
 
@@ -104,7 +116,11 @@ export default function TripResults({
                     <DestinationArt
                       gradient={stop.destination.gradient}
                       category={stop.destination.category}
-                      images={stop.destination.images}
+                      images={
+                        stop.destination.photoName
+                          ? [`/api/place-photo?name=${encodeURIComponent(stop.destination.photoName)}&w=400`]
+                          : stop.destination.images
+                      }
                       className="h-24 w-full shrink-0 rounded-2xl sm:w-32"
                     />
                     <div className="min-w-0 flex-1">
@@ -233,12 +249,25 @@ export default function TripResults({
   );
 }
 
-function SummaryStat({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
+function SummaryStat({
+  icon: Icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  sub?: string;
+}) {
   return (
     <div className="rounded-2xl bg-white/10 p-3.5">
       <Icon size={16} className="text-white/80" />
       <p className="mt-1.5 font-display text-lg font-semibold">{value}</p>
-      <p className="text-[11px] text-white/70">{label}</p>
+      <p className="text-[11px] text-white/70">
+        {label}
+        {sub && <span className="block text-white/50">{sub}</span>}
+      </p>
     </div>
   );
 }
