@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Send, RotateCcw } from "lucide-react";
+import { X, Send, RotateCcw, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateAssistantReply, premadeQuestions } from "@/lib/ai-responses";
 import AndrewMascot from "./AndrewMascot";
@@ -82,6 +82,17 @@ export default function AIAssistant() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, open, typing]);
+
+  // lock the page behind the full-screen mobile chat so the keyboard
+  // popping up can't shift/zoom the rest of the site underneath it
+  useEffect(() => {
+    if (!open) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, [open]);
 
   async function ask(question: string) {
     if (!question.trim()) return;
@@ -176,10 +187,18 @@ export default function AIAssistant() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 16 }}
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            style={{ height: "min(32rem, 70vh)", transformOrigin: "bottom right" }}
-            className="fixed bottom-24 right-5 z-[2000] flex w-[calc(100vw-2.5rem)] max-w-sm flex-col overflow-hidden rounded-3xl border border-edge bg-surface shadow-2xl shadow-brand-900/20 sm:bottom-28 sm:right-7"
+            style={{ transformOrigin: "bottom right" }}
+            className="fixed inset-0 z-[2000] flex h-dvh w-full flex-col overflow-hidden border-edge bg-surface shadow-2xl shadow-brand-900/20 sm:inset-auto sm:bottom-28 sm:right-7 sm:h-[min(32rem,70vh)] sm:w-[calc(100vw-2.5rem)] sm:max-w-sm sm:rounded-3xl sm:border"
           >
             <div className="flex items-center gap-3 bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-4 text-white">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close chat"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/15 hover:text-white sm:hidden"
+              >
+                <ArrowLeft size={18} />
+              </button>
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/20">
                 <AndrewMascot size={26} animated />
               </span>
@@ -204,6 +223,14 @@ export default function AIAssistant() {
               >
                 <RotateCcw size={15} />
               </motion.button>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close chat"
+                className="hidden h-8 w-8 shrink-0 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/15 hover:text-white sm:grid"
+              >
+                <X size={16} />
+              </button>
             </div>
 
             <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-tint/40 px-4 py-4">
@@ -295,7 +322,7 @@ export default function AIAssistant() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type a question..."
-                  className="flex-1 rounded-full border border-edge bg-tint/60 px-4 py-2 text-sm text-ink outline-none transition-shadow focus:border-brand-400 focus:shadow-[0_0_0_3px_rgba(216,31,116,0.12)]"
+                  className="flex-1 rounded-full border border-edge bg-tint/60 px-4 py-2 text-base text-ink outline-none transition-shadow focus:border-brand-400 focus:shadow-[0_0_0_3px_rgba(216,31,116,0.12)] sm:text-sm"
                 />
                 <motion.button
                   whileHover={{ scale: 1.08 }}
