@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { Compass } from "lucide-react";
@@ -49,9 +49,12 @@ export default function DestinationsExplorer() {
     });
   }, [query, category, beyondGuidebook]);
 
-  useEffect(() => {
+  const filterKey = `${query}|${category}|${beyondGuidebook}|${view}`;
+  const [lastFilterKey, setLastFilterKey] = useState(filterKey);
+  if (filterKey !== lastFilterKey) {
+    setLastFilterKey(filterKey);
     setPage(1);
-  }, [query, category, beyondGuidebook, view]);
+  }
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -95,7 +98,7 @@ export default function DestinationsExplorer() {
                   Beyond the Guidebooks is just getting started
                 </p>
                 <p className="mt-1 text-sm text-ink-faint">
-                  We're out scouting uncharted spots around Norzagaray to add here. Check back soon.
+                  We&apos;re out scouting uncharted spots around Norzagaray to add here. Check back soon.
                 </p>
               </>
             ) : (

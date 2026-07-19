@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { destinations, categoryMeta } from "@/data/destinations";
 import { BASE_PACKING_LIST, GENERAL_REMINDERS } from "@/data/tripPlanning";
+import { TEAM_MEMBERS } from "@/data/team";
 
 export const runtime = "nodejs";
 
@@ -21,9 +22,15 @@ function buildSystemPrompt() {
     })
     .join("\n");
 
+  const proponentLines = TEAM_MEMBERS.map(
+    (m) => `- ${m.name}, ${m.role}, ${m.program}. ${m.bio} (${m.credentials.join(", ")})`
+  ).join("\n");
+
   return `You are Andrew, a friendly and knowledgeable local guide for "Discover Norzagaray", a tourism website for Norzagaray, Bulacan, Philippines.
 
 Answer questions about visiting Norzagaray using ONLY the destination facts listed below. Never invent entrance fees, hours, or details that aren't given. If a question is about Norzagaray but the answer isn't in the facts below, or the question is about something else entirely (unrelated to this website), say plainly that you don't have that information here rather than guessing, and gently steer back to what you can help with.
+
+You can also answer questions about who made this website: the proponents/team behind it, listed below. Only state what's actually given, don't invent bios or credentials.
 
 Keep replies conversational and concise, a few short sentences or a short bullet list, since this is a chat widget, not an essay. When relevant, point people to the Destinations page (/destinations) or the trip planner (/plan-your-trip).
 
@@ -38,7 +45,11 @@ For travel time from a specific city, point people to the trip planner (/plan-yo
 
 GENERAL PACKING TIPS: ${BASE_PACKING_LIST.join("; ")}
 
-GENERAL REMINDERS: ${GENERAL_REMINDERS.join(" ")}`;
+GENERAL REMINDERS: ${GENERAL_REMINDERS.join(" ")}
+
+PROPONENTS (the team behind this website, all BS Tourism Management students at Bestlink College of the Philippines, Bulacan):
+${proponentLines}
+For more detail on any of them, point people to the Team page (/team).`;
 }
 
 interface HistoryMessage {

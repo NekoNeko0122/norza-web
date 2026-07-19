@@ -1,5 +1,6 @@
 import { destinations, categoryMeta, type Destination } from "@/data/destinations";
 import { BASE_PACKING_LIST, CONDITIONAL_PACKING, GENERAL_REMINDERS } from "@/data/tripPlanning";
+import { TEAM_MEMBERS } from "@/data/team";
 
 export interface PremadeQuestion {
   id: string;
@@ -61,6 +62,35 @@ function matchesAny(query: string, words: string[]): boolean {
   return words.some((w) => new RegExp(`\\b${escapeRegExp(w)}\\b`).test(query));
 }
 
+const TEAM_WORDS = [
+  "proponent",
+  "proponents",
+  "team",
+  "developer",
+  "developers",
+  "creator",
+  "creators",
+  "who made",
+  "who built",
+  "who created",
+  "sino gumawa",
+  "gumawa nito",
+  "gumawa ng website",
+  "sino may gawa",
+  "may gawa",
+  "sino gumawa nito",
+];
+
+function findTeamMember(query: string) {
+  return TEAM_MEMBERS.find((m) => {
+    const nameParts = m.name.toLowerCase().split(" ");
+    return (
+      query.includes(m.name.toLowerCase()) ||
+      nameParts.some((p) => p.length > 3 && query.includes(p))
+    );
+  });
+}
+
 export function generateAssistantReply(rawQuery: string): string {
   const query = rawQuery.trim().toLowerCase();
   if (!query) {
@@ -81,6 +111,16 @@ export function generateAssistantReply(rawQuery: string): string {
 
   if (query.includes("what can you do") || query.includes("paano ka") || query === "help" || query.includes("makakatulong")) {
     return "I can help you explore Norzagaray's caves, rivers, waterfalls, and heritage sites: ask me about must-visit spots, entrance fees, how to get here, packing tips, or say you want to plan a trip and I'll point you to the trip planner.";
+  }
+
+  const teamMember = findTeamMember(query);
+  if (teamMember) {
+    return `${teamMember.name}\n\n${teamMember.role} • ${teamMember.program}\n\n${teamMember.bio}\n\nSee the full team on the Team page (/team).`;
+  }
+
+  if (matchesAny(query, TEAM_WORDS)) {
+    const list = TEAM_MEMBERS.map((m) => `• ${m.name} — ${m.role}`).join("\n");
+    return `Discover Norzagaray was made by a team of BS Tourism Management students from Bestlink College of the Philippines, Bulacan:\n\n${list}\n\nVisit the Team page (/team) to learn more about each of them.`;
   }
 
   if (query.length <= 12 && matchesAny(query, FILLER_WORDS)) {

@@ -50,11 +50,15 @@ export default function TripPlannerWizard() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const shouldSuggest = originStatus !== "resolved" && !!originQuery.trim();
+  const [lastShouldSuggest, setLastShouldSuggest] = useState(shouldSuggest);
+  if (shouldSuggest !== lastShouldSuggest) {
+    setLastShouldSuggest(shouldSuggest);
+    if (!shouldSuggest) setSuggestions([]);
+  }
+
   useEffect(() => {
-    if (originStatus === "resolved" || !originQuery.trim()) {
-      setSuggestions([]);
-      return;
-    }
+    if (!shouldSuggest) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       try {
@@ -68,7 +72,7 @@ export default function TripPlannerWizard() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [originQuery, originStatus]);
+  }, [originQuery, shouldSuggest]);
 
   async function selectSuggestion(s: CitySuggestion) {
     setShowSuggestions(false);
